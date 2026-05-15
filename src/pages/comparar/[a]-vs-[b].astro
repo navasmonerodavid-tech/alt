@@ -1,0 +1,129 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { tools as mockTools } from '@/lib/seed-data'
+
+export async function getStaticPaths() {
+  const pairs = [
+    ['notion', 'obsidian'], ['slack', 'discord'], ['figma', 'penpot'],
+    ['trello', 'asana'], ['asana', 'clickup'], ['notion', 'clickup'],
+    ['zapier', 'make'], ['zapier', 'n8n'], ['make', 'n8n'],
+    ['mailchimp', 'brevo'], ['hubspot', 'pipedrive'], ['hubspot', 'zoho-crm'],
+    ['semrush', 'ahrefs'], ['canva', 'figma'], ['google-analytics', 'plausible'],
+    ['shopify', 'woocommerce'], ['slack', 'mattermost'],
+  ]
+  return pairs.map(([a, b]) => ({ params: { a, b } }))
+}
+
+const { a, b } = Astro.params
+
+const toolA = mockTools.find(t => t.slug === a)
+const toolB = mockTools.find(t => t.slug === b)
+
+const title = `${toolA?.name || a} vs ${toolB?.name || b}: ¿cuál elegir en 2026?`
+const desc = `Comparativa real entre ${toolA?.name || a} y ${toolB?.name || b}: precios, funcionalidades, pros, contras y valoraciones. Descubre cuál es mejor para ti.`
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description: desc,
+  mainEntity: {
+    '@type': 'Product',
+    name: toolA?.name || a,
+  },
+}
+---
+
+<BaseLayout title={title} description={desc} lang="es" canonical={`/comparar/${a}-vs-${b}`} schema={schema}>
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <nav class="text-sm text-[var(--color-ink-light)] mb-6">
+      <a href="/" class="hover:text-[var(--color-ink)] transition-colors no-underline">Inicio</a>
+      <span class="mx-2">/</span>
+      <span class="text-[var(--color-ink)]">{a} vs {b}</span>
+    </nav>
+
+    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--color-ink)] mb-6">
+      {toolA?.name || a}
+      <span class="text-[var(--color-green)] mx-2">vs</span>
+      {toolB?.name || b}
+    </h1>
+
+    <p class="text-lg text-[var(--color-ink-light)] mb-10 max-w-3xl">
+      ¿Estás dudando entre {toolA?.name || a} y {toolB?.name || b}?
+      Aquí tienes una comparativa lado a lado con datos reales de precios, valoraciones y funcionalidades.
+      No hay una herramienta "mejor" para todos: depende de tu caso de uso concreto.
+    </p>
+
+    <!-- Side-by-side comparison -->
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      {[toolA, toolB].map(tool => (
+        <div class="bg-white border border-[var(--color-border)] rounded-xl p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-lg bg-[var(--color-green-bg)] flex items-center justify-center shrink-0 overflow-hidden">
+              {tool?.logo_url ? (
+                <img src={tool.logo_url} alt={tool.name} class="w-8 h-8 object-contain" loading="lazy" />
+              ) : (
+                <span class="text-lg font-bold text-[var(--color-green)]">{tool?.name?.[0] || '?'}</span>
+              )}
+            </div>
+            <h2 class="text-xl font-bold text-[var(--color-ink)]">{tool?.name || '?'}</h2>
+          </div>
+
+          <dl class="space-y-2 text-sm">
+            <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
+              <dt class="text-[var(--color-ink-light)]">Precio</dt>
+              <dd class="font-medium text-[var(--color-ink)]">
+                {tool?.price_model === 'free' ? 'Gratis' : tool?.price_starting ? `Desde ${tool.price_starting}€/mes` : 'Freemium'}
+              </dd>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
+              <dt class="text-[var(--color-ink-light)]">Valoración G2</dt>
+              <dd class="font-medium text-[var(--color-ink)]">{tool?.rating_g2 ? `⭐ ${tool.rating_g2}/5` : '-'}</dd>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
+              <dt class="text-[var(--color-ink-light)]">Open Source</dt>
+              <dd class="font-medium text-[var(--color-ink)]">{tool?.is_open_source ? 'Sí ✅' : 'No'}</dd>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
+              <dt class="text-[var(--color-ink-light)]">Categoría</dt>
+              <dd class="font-medium text-[var(--color-ink)]">{tool?.tags?.[0] || '-'}</dd>
+            </div>
+          </dl>
+
+          <p class="text-sm text-[var(--color-ink-light)] mt-4 leading-relaxed">{tool?.description_es}</p>
+
+          <div class="mt-4 flex gap-3">
+            <a href={`/alternativas-a/${tool?.slug}`}
+              class="text-sm font-medium text-[var(--color-green)] hover:underline no-underline">
+              Ver alternativas →
+            </a>
+            <a href={tool?.website_url || '#'} target="_blank" rel="nofollow"
+              class="text-sm font-medium px-4 py-1.5 rounded-lg bg-[var(--color-green)] text-white hover:bg-[var(--color-green-light)] transition-colors no-underline">
+              Visitar web
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Verdict -->
+    <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-2xl p-6 text-center">
+      <h3 class="text-lg font-semibold mb-2 text-[var(--color-ink)]">📊 Nuestra recomendación</h3>
+      <p class="text-sm text-[var(--color-ink-light)] max-w-2xl mx-auto">
+        La elección entre {toolA?.name || a} y {toolB?.name || b} depende de tus necesidades específicas.
+        Si buscas algo {toolA?.price_model === 'free' ? 'gratuito' : 'económico'}, {toolA?.name || a} es buena opción.
+        Si necesitas funcionalidades avanzadas, explora también las alternativas de cada herramienta.
+      </p>
+      <div class="flex justify-center gap-4 mt-4">
+        <a href={`/alternativas-a/${a}`}
+          class="text-sm font-medium text-[var(--color-green)] hover:underline no-underline">
+          Alternativas a {toolA?.name || a} →
+        </a>
+        <a href={`/alternativas-a/${b}`}
+          class="text-sm font-medium text-[var(--color-green)] hover:underline no-underline">
+          Alternativas a {toolB?.name || b} →
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

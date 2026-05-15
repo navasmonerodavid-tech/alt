@@ -2,12 +2,20 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import SearchBar from '@/components/SearchBar'
 import { getCategories, getTools, getToolCount } from '@/lib/data'
+import { getHreflang } from '@/lib/hreflang'
 
 const categories = await getCategories()
 const tools = await getTools()
 const toolCount = await getToolCount()
 
 const featuredTools = tools.filter(t => t.rating_g2 && t.rating_g2 >= 4.5).slice(0, 8)
+
+const toolsForSearch = tools.map(t => ({
+  slug: t.slug,
+  name: t.name,
+  description_es: t.description_es,
+  description_en: t.description_en,
+}))
 
 const schema = {
   '@context': 'https://schema.org',
@@ -29,7 +37,10 @@ const schema = {
 <BaseLayout
   title="alt/ — Encuentra las mejores alternativas a herramientas SaaS"
   description="Compara alternativas a Notion, Slack, Figma, Trello y más de 30 herramientas SaaS. Precios reales, valoraciones y casos de uso. En español."
+  lang="es"
+  canonical="/"
   schema={schema}
+  hreflang={getHreflang('home')}
 >
   <section class="max-w-6xl mx-auto px-4 pt-16 pb-12 text-center">
     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[var(--color-ink)] mb-4">
@@ -42,7 +53,7 @@ const schema = {
       Sin publicidad vacía. Solo datos para que decidas bien.
     </p>
     <div class="max-w-xl mx-auto mb-8">
-      <SearchBar lang="es" client:load />
+      <SearchBar lang="es" toolsData={toolsForSearch} client:load />
     </div>
     <p class="text-sm text-[var(--color-ink-light)]">
       <strong>{toolCount}+</strong> herramientas · <strong>{categories.length}</strong> categorías · + contenido cada semana

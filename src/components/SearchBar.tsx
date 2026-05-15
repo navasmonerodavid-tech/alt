@@ -1,22 +1,22 @@
 import { useState, useEffect, useRef } from 'react'
 
-interface SearchResult {
+interface ToolData {
   slug: string
   name: string
   description_es: string
+  description_en: string
   category_slug?: string
   category_name?: string
 }
 
 interface Props {
   lang?: string
+  toolsData: ToolData[]
 }
 
-export default function SearchBar({ lang = 'es' }: Props) {
+export default function SearchBar({ lang = 'es', toolsData }: Props) {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchResult[]>([])
   const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   const isEn = lang === 'en'
@@ -31,33 +31,15 @@ export default function SearchBar({ lang = 'es' }: Props) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  useEffect(() => {
-    if (!query.trim()) {
-      setResults([])
-      setOpen(false)
-      return
-    }
+  const q = query.toLowerCase().trim()
+  const results = q ? toolsData.filter(t => {
+    const nameMatch = t.name.toLowerCase().includes(q)
+    const descField = isEn ? t.description_en : t.description_es
+    const descMatch = (descField || '').toLowerCase().includes(q)
+    return nameMatch || descMatch
+  }).slice(0, 10) : []
 
-    const timer = setTimeout(async () => {
-      setLoading(true)
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&lang=${lang}`)
-        if (res.ok) {
-          const data = await res.json()
-          setResults(data.results || [])
-          setOpen(true)
-        }
-      } catch {
-        setResults([])
-      } finally {
-        setLoading(false)
-      }
-    }, 250)
-
-    return () => clearTimeout(timer)
-  }, [query, lang])
-
-  const searchUrl = isEn ? `/en/search` : `/alternativas-a`
+  const resultHref = (slug: string) => isEn ? `/en/alternatives-to/${slug}` : `/alternativas-a/${slug}`
 
   return (
     <div ref={ref} className="relative w-full">
@@ -70,9 +52,7 @@ export default function SearchBar({ lang = 'es' }: Props) {
           placeholder={isEn ? 'Search a tool... (e.g. Notion, Slack, Figma)' : 'Busca una herramienta... (ej. Notion, Slack, Figma)'}
           className="w-full px-5 py-3.5 rounded-xl border border-[var(--color-border)] bg-white text-[var(--color-ink)] placeholder-[var(--color-ink-light)] focus:outline-none focus:ring-2 focus:ring-[var(--color-green)]/30 focus:border-[var(--color-green)] text-lg shadow-sm"
         />
-        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-ink-light)]">
-          {loading ? '⏳' : '🔍'}
-        </span>
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-ink-light)]">🔍</span>
       </div>
 
       {open && results.length > 0 && (
@@ -80,7 +60,7 @@ export default function SearchBar({ lang = 'es' }: Props) {
           {results.map(r => (
             <a
               key={r.slug}
-              href={`/alternativas-a/${r.slug}`}
+              href={resultHref(r.slug)}
               className="flex items-start gap-3 px-4 py-3 hover:bg-[var(--color-cream)] transition-colors no-underline border-b border-[var(--color-border-light)] last:border-0"
             >
               <div className="flex-1 min-w-0">
@@ -89,7 +69,7 @@ export default function SearchBar({ lang = 'es' }: Props) {
                   <span className="text-[var(--color-green)]">{r.name}</span>
                 </div>
                 <div className="text-xs text-[var(--color-ink-light)] mt-0.5 line-clamp-1">
-                  {r.description_es}
+                  {isEn ? r.description_en : r.description_es}
                 </div>
                 {r.category_name && (
                   <span className="text-[10px] text-[var(--color-ink-light)] bg-[var(--color-border-light)] px-1.5 py-0.5 rounded mt-1 inline-block">

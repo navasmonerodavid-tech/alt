@@ -2,12 +2,20 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import SearchBar from '@/components/SearchBar'
 import { getCategories, getTools, getToolCount } from '@/lib/data'
+import { getHreflang } from '@/lib/hreflang'
 
 const categories = await getCategories()
 const tools = await getTools()
 const toolCount = await getToolCount()
 
 const featuredTools = tools.filter(t => t.rating_g2 && t.rating_g2 >= 4.5).slice(0, 8)
+
+const toolsForSearch = tools.map(t => ({
+  slug: t.slug,
+  name: t.name,
+  description_es: t.description_es,
+  description_en: t.description_en,
+}))
 
 const schema = {
   '@context': 'https://schema.org',
@@ -32,6 +40,7 @@ const schema = {
   lang="en"
   canonical="/en"
   schema={schema}
+  hreflang={getHreflang('home')}
 >
   <!-- Hero -->
   <section class="max-w-6xl mx-auto px-4 pt-16 pb-12 text-center">
@@ -46,7 +55,7 @@ const schema = {
     </p>
 
     <div class="max-w-xl mx-auto mb-8">
-      <SearchBar lang="en" client:load />
+      <SearchBar lang="en" toolsData={toolsForSearch} client:load />
     </div>
 
     <p class="text-sm text-[var(--color-ink-light)]">

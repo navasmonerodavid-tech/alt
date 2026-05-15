@@ -8,14 +8,50 @@ import type { Category, Tool, GeneratedContent } from './types'
 
 const hasSupabase = () => !!(import.meta.env.SUPABASE_URL && import.meta.env.SUPABASE_ANON_KEY)
 
+// Timeout wrapper — evita que se cuelgue el build si Supabase no responde
+function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('TIMEOUT')), ms)
+    Promise.resolve(promise).then(r => { clearTimeout(timer); resolve(r) }).catch(e => { clearTimeout(timer); reject(e) })
+  })
+}
+
+// Cache de disponibilidad — evita reintentos durante el build
+let _supabaseAvailable: boolean | null = null
+let _supabaseCheckTime = 0
+
+async function isSupabaseAvailable(): Promise<boolean> {
+  const now = Date.now()
+  if (_supabaseAvailable !== null && (now - _supabaseCheckTime < 30000)) {
+    return _supabaseAvailable
+  }
+  if (!hasSupabase()) {
+    _supabaseAvailable = false
+    _supabaseCheckTime = now
+    return false
+  }
+  // Intento rapido de conexion (1s timeout)
+  try {
+    const { error } = await withTimeout(
+      supabase.from('categories').select('count', { count: 'exact', head: true }),
+      1000
+    )
+    _supabaseAvailable = !error
+  } catch {
+    _supabaseAvailable = false
+  }
+  _supabaseCheckTime = now
+  return _supabaseAvailable
+}
+
 // ============================================================
 // HELPERS
 // ============================================================
 
-async function safeQuery<T>(queryFn: () => Promise<{ data: T | null; error?: any }>, fallback: T): Promise<T> {
-  if (!hasSupabase()) return fallback
+async function safeQuery<T>(queryFn: () => PromiseLike<{ data: T | null; error?: any }>, fallback: T): Promise<T> {
+  if (!await isSupabaseAvailable()) return fallback
   try {
-    const { data, error } = await queryFn()
+    const { data, error } = await withTimeout(queryFn(), 3000)
     if (error) {
       console.warn(`[db] Query error: ${error.message || error}`)
       return fallback
@@ -23,7 +59,7 @@ async function safeQuery<T>(queryFn: () => Promise<{ data: T | null; error?: any
     if (!data) return fallback
     return data
   } catch (err) {
-    console.warn(`[db] Connection error:`, (err as Error).message)
+    console.warn(`[db] Connection/Timeout:`, (err as Error).message)
     return fallback
   }
 }

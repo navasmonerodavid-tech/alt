@@ -10,9 +10,10 @@ export interface Props {
   lang?: string
   canonical?: string
   schema?: Record<string, unknown>
+  hreflang?: { lang: string; url: string }[]
 }
 
-const { title, description, lang, canonical, schema } = Astro.props
+const { title, description, lang, canonical, schema, hreflang } = Astro.props
 ---
 
 <!doctype html>
@@ -20,7 +21,7 @@ const { title, description, lang, canonical, schema } = Astro.props
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <SEO title={title} description={description} lang={lang} canonical={canonical} schema={schema} />
+    <SEO title={title} description={description} lang={lang} canonical={canonical} schema={schema} hreflang={hreflang} />
   </head>
   <body class="min-h-screen flex flex-col bg-[var(--color-cream)] text-[var(--color-ink)]">
     <Header lang={lang || 'es'} />

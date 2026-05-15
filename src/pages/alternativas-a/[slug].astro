@@ -2,12 +2,13 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import ToolCard from '@/components/ToolCard.astro'
 import FAQ from '@/components/FAQ.astro'
-import { getToolBySlug, getAlternativesForTool, getGeneratedContent, getCategoryBySlug, getTools, getCategories } from '@/lib/data'
+import { getToolBySlug, getAlternativesForTool, getGeneratedContent, getCategoryBySlug, getCategories } from '@/lib/data'
+import { getHreflang } from '@/lib/hreflang'
 import type { Tool } from '@/lib/types'
+import { tools as mockTools } from '@/lib/seed-data'
 
 export async function getStaticPaths() {
-  const tools = await getTools()
-  return tools.filter(t => t.slug).map(tool => ({
+  return mockTools.filter(t => t.slug).map(tool => ({
     params: { slug: tool.slug },
   }))
 }
@@ -50,7 +51,7 @@ const schema = {
 }
 ---
 
-<BaseLayout title={pageTitle} description={pageDesc} schema={schema}>
+<BaseLayout title={pageTitle} description={pageDesc} lang="es" canonical={`/alternativas-a/${slug}`} schema={schema} hreflang={getHreflang('alternatives', slug!)}>
   <div class="max-w-6xl mx-auto px-4 py-8">
     <!-- Breadcrumb -->
     <nav class="text-sm text-[var(--color-ink-light)] mb-6">
