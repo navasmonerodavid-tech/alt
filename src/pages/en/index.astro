@@ -21,13 +21,13 @@ const schema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'alt/',
-  url: import.meta.env.SITE_URL || 'https://alt-saas.vercel.app',
+  url: import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app',
   description: 'Find the best alternatives to SaaS tools. Real comparisons with pricing, ratings and use cases.',
   potentialAction: {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: `${import.meta.env.SITE_URL || 'https://alt-saas.vercel.app'}/en/alternatives-to/{search_term_string}`,
+      urlTemplate: `${import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'}/en/alternatives-to/{search_term_string}`,
     },
     'query-input': 'required name=search_term_string',
   },

@@ -21,13 +21,13 @@ const schema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'alt/',
-  url: import.meta.env.SITE_URL || 'https://alt-saas.vercel.app',
+  url: import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app',
   description: 'Encuentra las mejores alternativas a herramientas SaaS. Comparativas reales con precios, valoraciones y casos de uso.',
   potentialAction: {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: `${import.meta.env.SITE_URL || 'https://alt-saas.vercel.app'}/alternativas-a/{search_term_string}`,
+      urlTemplate: `${import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'}/alternativas-a/{search_term_string}`,
     },
     'query-input': 'required name=search_term_string',
   },

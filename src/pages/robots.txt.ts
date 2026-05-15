@@ -1,5 +1,5 @@
 export async function GET() {
-  const siteUrl = import.meta.env.SITE_URL || 'https://alt-saas.vercel.app'
+  const siteUrl = import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'
 
   const txt = `User-agent: *
 Allow: /

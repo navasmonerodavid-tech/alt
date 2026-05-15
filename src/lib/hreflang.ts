@@ -6,7 +6,7 @@
 type PageType = 'home' | 'alternatives' | 'category'
 
 export function getHreflang(type: PageType, slug?: string) {
-  const siteUrl = import.meta.env.SITE_URL || 'https://alt-saas.vercel.app'
+  const siteUrl = import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'
 
   switch (type) {
     case 'home':
