@@ -1,0 +1,26 @@
+---
+const { lang = 'es' } = Astro.props
+const isEn = lang === 'en'
+const homeUrl = isEn ? '/en' : '/'
+---
+
+<header class="border-b border-[var(--color-border)] bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a href={homeUrl} class="flex items-center gap-1 no-underline" aria-label={isEn ? 'Home' : 'Inicio'}>
+      <span class="text-3xl font-bold tracking-tight text-[var(--color-ink)]">alt</span>
+      <span class="text-3xl font-bold text-[var(--color-green)]">/</span>
+    </a>
+    <nav class="flex items-center gap-6 text-sm font-medium">
+      <a href={isEn ? '/en/tools' : '/herramientas'} class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline">
+        {isEn ? 'Categories' : 'Categorías'}
+      </a>
+      <a href={isEn ? '/en' : '/'} class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline">
+        {isEn ? 'EN' : 'ES'}
+      </a>
+      <span class="text-[var(--color-border)]">|</span>
+      <a href={isEn ? '/' : '/en'} class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline text-xs opacity-60">
+        {isEn ? 'ES' : 'EN'}
+      </a>
+    </nav>
+  </div>
+</header>

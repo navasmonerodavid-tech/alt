@@ -1,0 +1,123 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import SearchBar from '@/components/SearchBar'
+import { getCategories, getTools, getToolCount } from '@/lib/data'
+
+const categories = await getCategories()
+const tools = await getTools()
+const toolCount = await getToolCount()
+
+const featuredTools = tools.filter(t => t.rating_g2 && t.rating_g2 >= 4.5).slice(0, 8)
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'alt/',
+  url: import.meta.env.SITE_URL || 'https://alt-saas.vercel.app',
+  description: 'Find the best alternatives to SaaS tools. Real comparisons with pricing, ratings and use cases.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${import.meta.env.SITE_URL || 'https://alt-saas.vercel.app'}/en/alternatives-to/{search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
+}
+---
+
+<BaseLayout
+  title="alt/ — Find the best alternatives to SaaS tools"
+  description="Compare alternatives to Notion, Slack, Figma, Trello and 30+ SaaS tools. Real pricing, ratings and use cases. In English and Spanish."
+  lang="en"
+  canonical="/en"
+  schema={schema}
+>
+  <!-- Hero -->
+  <section class="max-w-6xl mx-auto px-4 pt-16 pb-12 text-center">
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[var(--color-ink)] mb-4">
+      Find the best alternative
+      <br/>
+      <span class="text-[var(--color-green)]">to any SaaS tool</span>
+    </h1>
+    <p class="text-lg text-[var(--color-ink-light)] max-w-2xl mx-auto mb-8">
+      Real comparisons with pricing, ratings and pros/cons.
+      No empty ads. Just data so you decide well.
+    </p>
+
+    <div class="max-w-xl mx-auto mb-8">
+      <SearchBar lang="en" client:load />
+    </div>
+
+    <p class="text-sm text-[var(--color-ink-light)]">
+      <strong>{toolCount}+</strong> tools · <strong>{categories.length}</strong> categories · + new content every week
+    </p>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 py-12">
+    <h2 class="text-xl font-semibold text-center mb-8 text-[var(--color-ink)]">
+      🔥 Trending searches
+    </h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      {[
+        { slug: 'notion', name: 'Notion', count: 8 },
+        { slug: 'slack', name: 'Slack', count: 5 },
+        { slug: 'figma', name: 'Figma', count: 5 },
+        { slug: 'trello', name: 'Trello', count: 5 },
+        { slug: 'zapier', name: 'Zapier', count: 3 },
+        { slug: 'canva', name: 'Canva', count: 3 },
+        { slug: 'mailchimp', name: 'Mailchimp', count: 3 },
+        { slug: 'asana', name: 'Asana', count: 4 },
+      ].map(item => (
+        <a
+          href={`/en/alternatives-to/${item.slug}`}
+          class="block p-4 bg-white border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all text-center no-underline"
+        >
+          <span class="font-medium text-[var(--color-ink)] block">{item.name}</span>
+          <span class="text-xs text-[var(--color-ink-light)]">{item.count} alternatives</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 py-12">
+    <h2 class="text-xl font-semibold text-center mb-8 text-[var(--color-ink)]">
+      📂 Browse by category
+    </h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      {categories.map(cat => (
+        <a
+          href={`/en/tools/${cat.slug}`}
+          class="flex items-center gap-2 p-3 bg-white border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline"
+        >
+          <span class="text-lg">{cat.icon}</span>
+          <span class="text-sm font-medium text-[var(--color-ink)]">{cat.name_en}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 py-12">
+    <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-2xl p-8 text-center">
+      <h2 class="text-xl font-semibold mb-2 text-[var(--color-ink)]">📬 Best alternative every week</h2>
+      <p class="text-sm text-[var(--color-ink-light)] mb-4 max-w-md mx-auto">
+        Get the top 3 SaaS alternatives of the week, with real comparisons. No spam.
+      </p>
+      <form class="flex gap-2 max-w-sm mx-auto" action="/api/subscribe" method="POST">
+        <input
+          type="email"
+          name="email"
+          placeholder="you@email.com"
+          required
+          class="flex-1 px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-green)]/30"
+        />
+        <button
+          type="submit"
+          class="px-5 py-2.5 rounded-lg bg-[var(--color-green)] text-white text-sm font-medium hover:bg-[var(--color-green-light)] transition-colors"
+        >
+          Subscribe
+        </button>
+      </form>
+    </div>
+  </section>
+</BaseLayout>

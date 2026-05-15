@@ -1,0 +1,26 @@
+---
+const { lang = 'es' } = Astro.props
+const isEn = lang === 'en'
+---
+
+<footer class="border-t border-[var(--color-border)] bg-white/50 mt-16">
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[var(--color-ink-light)]">
+      <div class="flex items-center gap-1">
+        <span class="font-bold text-[var(--color-ink)]">alt/</span>
+        <span>&mdash; {isEn ? 'Find better. Pay less.' : 'Encuentra mejor. Paga menos.'}</span>
+      </div>
+      <div class="flex gap-6">
+        <a href={isEn ? '/en/tools' : '/herramientas'} class="hover:text-[var(--color-ink)] transition-colors no-underline">
+          {isEn ? 'Categories' : 'Categorías'}
+        </a>
+        <a href={isEn ? `/en` : `/`} class="hover:text-[var(--color-ink)] transition-colors no-underline">
+          {isEn ? 'English' : 'Español'}
+        </a>
+      </div>
+    </div>
+    <div class="text-center text-xs text-[var(--color-border)] mt-6">
+      {isEn ? 'We earn commissions from some links. This does not affect our rankings.' : 'Ganamos comisiones de algunos enlaces. Esto no afecta nuestras valoraciones.'}
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,48 @@
+---
+export interface Props {
+  title: string
+  description: string
+  lang?: string
+  canonical?: string
+  hreflang?: { lang: string; url: string }[]
+  schema?: Record<string, unknown>
+  image?: string
+}
+
+const {
+  title,
+  description,
+  lang = 'es',
+  canonical,
+  hreflang = [],
+  schema,
+  image = '/logo.svg',
+} = Astro.props
+
+const siteUrl = import.meta.env.SITE_URL || 'https://alt-saas.vercel.app'
+const canonicalUrl = canonical ? new URL(canonical, siteUrl).href : new URL(Astro.url.pathname, siteUrl).href
+---
+
+<title>{title}</title>
+<meta name="description" content={description}>
+
+<link rel="canonical" href={canonicalUrl}>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+{hreflang.map(({ lang: l, url }) => (
+  <link rel="alternate" hreflang={l} href={new URL(url, siteUrl).href} />
+))}
+
+<meta property="og:title" content={title}>
+<meta property="og:description" content={description}>
+<meta property="og:url" content={canonicalUrl}>
+<meta property="og:type" content="website">
+<meta property="og:image" content={new URL(image, siteUrl).href}>
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content={title}>
+<meta name="twitter:description" content={description}>
+
+{schema && (
+  <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
+)}
