@@ -1,0 +1,104 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import FAQ from '@/components/FAQ.astro'
+import { getToolBySlug, getAlternativesForTool, getGeneratedContent, getCategories } from '@/lib/data'
+import { tools as mockTools } from '@/lib/seed-data'
+import { getToolContent } from '@/lib/tool-content'
+
+export async function getStaticPaths() {
+  return mockTools.filter(t => t.slug).map(tool => ({ params: { slug: tool.slug } }))
+}
+
+const { slug } = Astro.params
+const tool = await getToolBySlug(slug!)
+if (!tool) return Astro.redirect('/en')
+const content = getToolContent(slug!)
+const alternatives = await getAlternativesForTool(slug!)
+const genContent = await getGeneratedContent(tool.id)
+const cats = await getCategories()
+const category = cats.find(c => c.id === tool.category_id)
+
+const title = `${tool.name}: pricing, features, reviews and alternatives in 2026`
+const desc = `Complete ${tool.name} profile: ${tool.description_en.slice(0, 120)}. Pricing, features, ratings, pros/cons and alternatives.`
+---
+
+<BaseLayout title={title} description={desc} lang="en" canonical={`/en/tool/${slug}`}>
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <nav class="text-sm text-[var(--color-ink-light)] mb-6 flex flex-wrap gap-1">
+      <a href="/en" class="hover:text-[var(--color-ink)] no-underline">Home</a><span>/</span>
+      {category && <a href={`/en/tools/${category.slug}`} class="hover:text-[var(--color-ink)] no-underline">{category.name_en}</a>}<span>/</span>
+      <span class="text-[var(--color-ink)]">{tool.name}</span>
+    </nav>
+
+    <div class="flex flex-col sm:flex-row items-start gap-6 mb-10">
+      <div class="w-20 h-20 rounded-2xl bg-[var(--color-green-bg)] flex items-center justify-center shrink-0">
+        {tool.logo_url ? <img src={tool.logo_url} alt={tool.name} class="w-12 h-12 object-contain" /> : <span class="text-3xl font-bold text-[var(--color-green)]">{tool.name[0]}</span>}
+      </div>
+      <div class="flex-1">
+        <h1 class="text-3xl sm:text-4xl font-bold text-[var(--color-ink)] mb-2">{tool.name}</h1>
+        <p class="text-lg text-[var(--color-ink-light)] max-w-2xl">{tool.description_en}</p>
+        <div class="flex items-center gap-4 mt-4 text-sm">
+          <span class="px-3 py-1 rounded-lg bg-[var(--color-cream)] font-semibold">{tool.price_model === 'free' ? 'Free' : tool.price_starting ? `From €${tool.price_starting}/mo` : 'Freemium'}</span>
+          {tool.rating_g2 && <span>{'⭐'} {tool.rating_g2}/5 (G2)</span>}
+          {content.founded_year && <span>Founded {content.founded_year}</span>}
+        </div>
+      </div>
+      <a href={tool.website_url} target="_blank" rel="nofollow" class="shrink-0 px-6 py-3 rounded-xl bg-[var(--color-green)] text-white font-medium hover:bg-[var(--color-green-light)] no-underline">Visit →</a>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2 space-y-10">
+        {content.features_en.length > 0 && (
+          <section>
+            <h2 class="text-xl font-bold mb-4">⚡ Key Features</h2>
+            <div class="grid sm:grid-cols-2 gap-2">
+              {content.features_en.map(f => <div class="flex items-start gap-2 p-3 bg-white border border-[var(--color-border)] rounded-lg"><span class="text-[var(--color-green)] mt-0.5">✓</span><span class="text-sm">{f}</span></div>)}
+            </div>
+          </section>
+        )}
+        {content.pricing_tiers.length > 0 && (
+          <section>
+            <h2 class="text-xl font-bold mb-4">💰 Pricing Plans</h2>
+            <div class="grid sm:grid-cols-3 gap-3">
+              {content.pricing_tiers.map(tier => (
+                <div class="bg-white border border-[var(--color-border)] rounded-xl p-4">
+                  <h3 class="font-semibold mb-1">{tier.name}</h3>
+                  <div class="text-2xl font-bold text-[var(--color-green)] mb-3">{tier.price_monthly === 0 ? 'Free' : `€${tier.price_monthly}`}<span class="text-sm font-normal text-[var(--color-ink-light)]">/mo</span></div>
+                  <ul class="space-y-1">{tier.features.map(f => <li class="text-xs text-[var(--color-ink-light)]"><span class="text-[var(--color-green)]">•</span> {f}</li>)}</ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+        {(content.pros_en.length > 0 || content.cons_en.length > 0) && (
+          <section>
+            <h2 class="text-xl font-bold mb-4">📊 Pros & Cons</h2>
+            <div class="grid sm:grid-cols-2 gap-6">
+              <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-xl p-5">
+                <h3 class="font-semibold text-[var(--color-green)] mb-3">✅ Pros</h3>
+                <ul class="space-y-2">{content.pros_en.map(p => <li class="text-sm flex gap-2"><span>+</span> {p}</li>)}</ul>
+              </div>
+              <div class="bg-red-50 border border-red-200 rounded-xl p-5">
+                <h3 class="font-semibold text-red-600 mb-3">❌ Cons</h3>
+                <ul class="space-y-2">{content.cons_en.map(c => <li class="text-sm flex gap-2"><span>-</span> {c}</li>)}</ul>
+              </div>
+            </div>
+          </section>
+        )}
+        <section class="grid sm:grid-cols-2 gap-4">
+          {content.best_for_en && <div class="bg-white border border-[var(--color-green)]/30 rounded-xl p-5"><h3 class="font-semibold text-[var(--color-green)] mb-2">🎯 Best For</h3><p class="text-sm">{content.best_for_en}</p></div>}
+          {content.not_ideal_for_en && <div class="bg-white border border-orange-200 rounded-xl p-5"><h3 class="font-semibold text-orange-600 mb-2">⚠️ Not Ideal For</h3><p class="text-sm">{content.not_ideal_for_en}</p></div>}
+        </section>
+        {content.integrations.length > 0 && (
+          <section><h2 class="text-xl font-bold mb-4">🔌 Integrations</h2><div class="flex flex-wrap gap-2">{content.integrations.map(i => <span class="px-3 py-1 bg-white border border-[var(--color-border)] rounded-full text-sm">{i}</span>)}</div></section>
+        )}
+        <section>
+          <h2 class="text-xl font-bold mb-4">🔀 {tool.name} Alternatives</h2>
+          {alternatives.length > 0 ? <div class="space-y-3">{alternatives.slice(0,6).map(alt => <a href={`/en/alternatives-to/${alt.slug}`} class="flex items-center gap-4 p-4 bg-white border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] no-underline"><div class="w-10 h-10 rounded-lg bg-[var(--color-green-bg)] flex items-center justify-center shrink-0">{alt.logo_url ? <img src={alt.logo_url} alt={alt.name} class="w-6 h-6 object-contain" /> : <span class="font-bold text-[var(--color-green)]">{alt.name[0]}</span>}</div><div class="flex-1"><div class="font-medium">{alt.name}</div></div><span class="text-[var(--color-green)]">→</span></a>)}</div> : <p class="text-sm text-[var(--color-ink-light)]">Alternatives coming soon.</p>}
+          <a href={`/en/alternatives-to/${slug}`} class="inline-block mt-4 text-sm font-medium text-[var(--color-green)] hover:underline no-underline">View all {tool.name} alternatives →</a>
+        </section>
+      </div>
+      <aside class="space-y-6"><div class="bg-white border border-[var(--color-border)] rounded-xl p-5 sticky top-20"><h3 class="font-semibold mb-4">📋 Quick Facts</h3><dl class="space-y-3 text-sm"><div class="flex justify-between border-b border-[var(--color-border-light)] py-1.5"><dt>Price</dt><dd class="font-medium">{tool.price_model==='free'?'Free':tool.price_starting?`€${tool.price_starting}/mo`:'Freemium'}</dd></div>{tool.rating_g2&&<div class="flex justify-between border-b border-[var(--color-border-light)] py-1.5"><dt>G2</dt><dd class="font-medium">{'⭐'} {tool.rating_g2}/5</dd></div>}{content.founded_year&&<div class="flex justify-between border-b border-[var(--color-border-light)] py-1.5"><dt>Founded</dt><dd class="font-medium">{content.founded_year}</dd></div>}<div class="flex justify-between border-b border-[var(--color-border-light)] py-1.5"><dt>Open Source</dt><dd class="font-medium">{tool.is_open_source?'Yes':'No'}</dd></div></dl><a href={tool.website_url} target="_blank" rel="nofollow" class="block text-center mt-5 px-4 py-2.5 rounded-lg bg-[var(--color-green)] text-white text-sm font-medium hover:bg-[var(--color-green-light)] no-underline">Go to {tool.name} →</a></div></aside>
+    </div>
+  </div>
+</BaseLayout>

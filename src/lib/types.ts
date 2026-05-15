@@ -8,11 +8,19 @@ export interface Category {
   description_en: string
 }
 
+export interface PricingTier {
+  name: string
+  price_monthly: number
+  price_yearly?: number
+  features: string[]
+  limits?: string
+}
+
 export interface Tool {
   id: string
   slug: string
   name: string
-  logo_url: string
+  logo_url: string | null
   description_es: string
   description_en: string
   category_id: string
@@ -26,6 +34,21 @@ export interface Tool {
   is_verified: boolean
   listing_tier: 'free' | 'featured' | 'premium'
   tags: string[]
+  // Nuevos campos enciclopedicos
+  features_es: string[]
+  features_en: string[]
+  pros_es: string[]
+  pros_en: string[]
+  cons_es: string[]
+  cons_en: string[]
+  best_for_es: string
+  best_for_en: string
+  not_ideal_for_es: string
+  not_ideal_for_en: string
+  founded_year: number | null
+  integrations: string[]
+  screenshots: string[]
+  pricing_tiers: PricingTier[]
   created_at: string
   updated_at: string
 }

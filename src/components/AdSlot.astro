@@ -1,0 +1,22 @@
+---
+// AdSlot — Google AdSense placeholder
+// Hasta que AdSense apruebe, muestra placeholder visual.
+// Una vez aprobado, reemplazar data-ad-client con tu ID real.
+
+export interface Props {
+  slot: string // ej: '1234567890'
+  format?: 'auto' | 'horizontal' | 'rectangle' | 'vertical'
+  class?: string
+}
+
+const { slot, format = 'auto', class: className = '' } = Astro.props
+---
+
+<div class={`ad-container my-6 flex justify-center ${className}`}>
+  <div class="ad-placeholder border-2 border-dashed border-[var(--color-border)] rounded-xl p-4 text-center max-w-[728px] w-full bg-[var(--color-cream)]/50">
+    <p class="text-xs text-[var(--color-ink-light)] mb-1">Publicidad</p>
+    <div class="h-[90px] flex items-center justify-center text-[var(--color-border)]">
+      <span class="text-sm">Ad — {format}</span>
+    </div>
+  </div>
+</div>

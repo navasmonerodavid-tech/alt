@@ -1,0 +1,240 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import FAQ from '@/components/FAQ.astro'
+import { getToolBySlug, getAlternativesForTool, getGeneratedContent, getCategories } from '@/lib/data'
+import { tools as mockTools } from '@/lib/seed-data'
+import { getToolContent } from '@/lib/tool-content'
+
+export async function getStaticPaths() {
+  return mockTools.filter(t => t.slug).map(tool => ({ params: { slug: tool.slug } }))
+}
+
+const { slug } = Astro.params
+const tool = await getToolBySlug(slug!)
+if (!tool) return Astro.redirect('/')
+const content = getToolContent(slug!)
+const alternatives = await getAlternativesForTool(slug!)
+const genContent = await getGeneratedContent(tool.id)
+const cats = await getCategories()
+const category = cats.find(c => c.id === tool.category_id)
+
+const title = `${tool.name}: precios, funcionalidades, opiniones y alternativas en 2026`
+const desc = `Ficha completa de ${tool.name}: ${tool.description_es.slice(0, 120)}. Precios, funcionalidades, valoraciones, pros/contras y alternativas.`
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: tool.name,
+  applicationCategory: category?.name_es || 'BusinessApplication',
+  operatingSystem: 'Web',
+  description: tool.description_es,
+  offers: tool.price_starting ? { '@type': 'Offer', price: tool.price_starting.toString(), priceCurrency: 'EUR' } : undefined,
+  aggregateRating: tool.rating_g2 ? { '@type': 'AggregateRating', ratingValue: tool.rating_g2.toString(), bestRating: '5', ratingCount: '100' } : undefined,
+}
+---
+
+<BaseLayout title={title} description={desc} lang="es" canonical={`/herramienta/${slug}`} schema={schema}>
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <nav class="text-sm text-[var(--color-ink-light)] mb-6 flex flex-wrap gap-1">
+      <a href="/" class="hover:text-[var(--color-ink)] no-underline">Inicio</a>
+      <span>/</span>
+      {category && <a href={`/herramientas/${category.slug}`} class="hover:text-[var(--color-ink)] no-underline">{category.name_es}</a>}
+      <span>/</span>
+      <span class="text-[var(--color-ink)]">{tool.name}</span>
+    </nav>
+
+    <!-- Hero -->
+    <div class="flex flex-col sm:flex-row items-start gap-6 mb-10">
+      <div class="w-20 h-20 rounded-2xl bg-[var(--color-green-bg)] flex items-center justify-center shrink-0 overflow-hidden">
+        {tool.logo_url ? <img src={tool.logo_url} alt={tool.name} class="w-12 h-12 object-contain" /> : <span class="text-3xl font-bold text-[var(--color-green)]">{tool.name[0]}</span>}
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center gap-3 flex-wrap mb-2">
+          <h1 class="text-3xl sm:text-4xl font-bold text-[var(--color-ink)]">{tool.name}</h1>
+          {tool.is_open_source && <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-[var(--color-green-bg)] text-[var(--color-green)]">Open Source</span>}
+          {tool.is_verified && <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700">Verificado</span>}
+        </div>
+        <p class="text-lg text-[var(--color-ink-light)] max-w-2xl">{tool.description_es}</p>
+        <div class="flex items-center gap-4 mt-4 text-sm">
+          <span class="px-3 py-1 rounded-lg bg-[var(--color-cream)] font-semibold text-[var(--color-ink)]">
+            {tool.price_model === 'free' ? 'Gratis' : tool.price_starting ? `Desde ${tool.price_starting}€/mes` : 'Freemium'}
+          </span>
+          {tool.rating_g2 && <span class="text-[var(--color-ink-light)]">⭐ {tool.rating_g2}/5 (G2)</span>}
+          {content.founded_year && <span class="text-[var(--color-ink-light)]">Fundado {content.founded_year}</span>}
+        </div>
+      </div>
+      <a href={tool.website_url} target="_blank" rel="nofollow" class="shrink-0 px-6 py-3 rounded-xl bg-[var(--color-green)] text-white font-medium hover:bg-[var(--color-green-light)] transition-colors no-underline whitespace-nowrap">
+        Visitar web →
+      </a>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- Main Content (2/3) -->
+      <div class="lg:col-span-2 space-y-10">
+
+        <!-- Features -->
+        {content.features_es.length > 0 && (
+          <section>
+            <h2 class="text-xl font-bold mb-4 text-[var(--color-ink)]">⚡ Funcionalidades principales</h2>
+            <div class="grid sm:grid-cols-2 gap-2">
+              {content.features_es.map(f => (
+                <div class="flex items-start gap-2 p-3 bg-white border border-[var(--color-border)] rounded-lg">
+                  <span class="text-[var(--color-green)] mt-0.5">✓</span>
+                  <span class="text-sm text-[var(--color-ink)]">{f}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <!-- Pricing -->
+        {content.pricing_tiers.length > 0 && (
+          <section>
+            <h2 class="text-xl font-bold mb-4 text-[var(--color-ink)]">💰 Planes y precios</h2>
+            <div class="grid sm:grid-cols-3 gap-3">
+              {content.pricing_tiers.map(tier => (
+                <div class="bg-white border border-[var(--color-border)] rounded-xl p-4 flex flex-col">
+                  <h3 class="font-semibold text-[var(--color-ink)] mb-1">{tier.name}</h3>
+                  <div class="text-2xl font-bold text-[var(--color-green)] mb-3">
+                    {tier.price_monthly === 0 ? 'Gratis' : `${tier.price_monthly}€`}
+                    <span class="text-sm font-normal text-[var(--color-ink-light)]">/mes</span>
+                  </div>
+                  {tier.limits && <p class="text-xs text-orange-600 mb-2">{tier.limits}</p>}
+                  <ul class="space-y-1 flex-1">
+                    {tier.features.map(f => (
+                      <li class="text-xs text-[var(--color-ink-light)] flex gap-1"><span class="text-[var(--color-green)]">•</span> {f}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <!-- Pros & Cons -->
+        {(content.pros_es.length > 0 || content.cons_es.length > 0) && (
+          <section>
+            <h2 class="text-xl font-bold mb-4 text-[var(--color-ink)]">📊 Pros y contras</h2>
+            <div class="grid sm:grid-cols-2 gap-6">
+              <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-xl p-5">
+                <h3 class="font-semibold text-[var(--color-green)] mb-3">✅ Ventajas</h3>
+                <ul class="space-y-2">
+                  {content.pros_es.map(p => <li class="text-sm text-[var(--color-ink)] flex gap-2"><span>+</span> {p}</li>)}
+                </ul>
+              </div>
+              <div class="bg-red-50 border border-red-200 rounded-xl p-5">
+                <h3 class="font-semibold text-red-600 mb-3">❌ Desventajas</h3>
+                <ul class="space-y-2">
+                  {content.cons_es.map(c => <li class="text-sm text-[var(--color-ink)] flex gap-2"><span>-</span> {c}</li>)}
+                </ul>
+              </div>
+            </div>
+          </section>
+        )}
+
+        <!-- Best For / Not Ideal For -->
+        <section class="grid sm:grid-cols-2 gap-4">
+          {content.best_for_es && (
+            <div class="bg-white border border-[var(--color-green)]/30 rounded-xl p-5">
+              <h3 class="font-semibold text-[var(--color-green)] mb-2">🎯 Ideal para</h3>
+              <p class="text-sm text-[var(--color-ink-light)]">{content.best_for_es}</p>
+            </div>
+          )}
+          {content.not_ideal_for_es && (
+            <div class="bg-white border border-orange-200 rounded-xl p-5">
+              <h3 class="font-semibold text-orange-600 mb-2">⚠️ No ideal para</h3>
+              <p class="text-sm text-[var(--color-ink-light)]">{content.not_ideal_for_es}</p>
+            </div>
+          )}
+        </section>
+
+        <!-- Integrations -->
+        {content.integrations.length > 0 && (
+          <section>
+            <h2 class="text-xl font-bold mb-4 text-[var(--color-ink)]">🔌 Integraciones</h2>
+            <div class="flex flex-wrap gap-2">
+              {content.integrations.map(i => (
+                <span class="px-3 py-1 bg-white border border-[var(--color-border)] rounded-full text-sm text-[var(--color-ink-light)]">{i}</span>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <!-- Alternatives Section -->
+        <section>
+          <h2 class="text-xl font-bold mb-4 text-[var(--color-ink)]">🔀 Alternativas a {tool.name}</h2>
+          {alternatives.length > 0 ? (
+            <div class="space-y-3">
+              {alternatives.slice(0, 6).map(alt => (
+                <a href={`/alternativas-a/${alt.slug}`} class="flex items-center gap-4 p-4 bg-white border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] transition-all no-underline group">
+                  <div class="w-10 h-10 rounded-lg bg-[var(--color-green-bg)] flex items-center justify-center shrink-0 overflow-hidden">
+                    {alt.logo_url ? <img src={alt.logo_url} alt={alt.name} class="w-6 h-6 object-contain" /> : <span class="font-bold text-[var(--color-green)]">{alt.name[0]}</span>}
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium text-[var(--color-ink)] group-hover:text-[var(--color-green)]">{alt.name}</div>
+                    <div class="text-xs text-[var(--color-ink-light)]">{alt.description_es.slice(0, 80)}...</div>
+                  </div>
+                  <span class="text-[var(--color-green)]">→</span>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p class="text-sm text-[var(--color-ink-light)]">Pronto añadiremos alternativas para {tool.name}.</p>
+          )}
+          <a href={`/alternativas-a/${slug}`} class="inline-block mt-4 text-sm font-medium text-[var(--color-green)] hover:underline no-underline">
+            Ver todas las alternativas a {tool.name} →
+          </a>
+        </section>
+
+        <!-- FAQ -->
+        {genContent?.faq_es && Array.isArray(genContent.faq_es) && genContent.faq_es.length > 0 && (
+          <FAQ faqs={genContent.faq_es as { question: string; answer: string }[]} />
+        )}
+      </div>
+
+      <!-- Sidebar (1/3) -->
+      <aside class="space-y-6">
+        <div class="bg-white border border-[var(--color-border)] rounded-xl p-5 sticky top-20">
+          <h3 class="font-semibold text-[var(--color-ink)] mb-4">📋 Datos rápidos</h3>
+          <dl class="space-y-3 text-sm">
+            <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
+              <dt class="text-[var(--color-ink-light)]">Precio</dt>
+              <dd class="font-medium">{tool.price_model === 'free' ? 'Gratis' : tool.price_starting ? `${tool.price_starting}€/mes` : 'Freemium'}</dd>
+            </div>
+            {tool.rating_g2 && (
+              <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
+                <dt class="text-[var(--color-ink-light)]">G2</dt>
+                <dd class="font-medium">⭐ {tool.rating_g2}/5</dd>
+              </div>
+            )}
+            {tool.rating_capterra && (
+              <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
+                <dt class="text-[var(--color-ink-light)]">Capterra</dt>
+                <dd class="font-medium">⭐ {tool.rating_capterra}/5</dd>
+              </div>
+            )}
+            {content.founded_year && (
+              <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
+                <dt class="text-[var(--color-ink-light)]">Fundación</dt>
+                <dd class="font-medium">{content.founded_year}</dd>
+              </div>
+            )}
+            <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
+              <dt class="text-[var(--color-ink-light)]">Open Source</dt>
+              <dd class="font-medium">{tool.is_open_source ? 'Sí' : 'No'}</dd>
+            </div>
+            {category && (
+              <div class="flex justify-between py-1.5">
+                <dt class="text-[var(--color-ink-light)]">Categoría</dt>
+                <dd class="font-medium"><a href={`/herramientas/${category.slug}`} class="text-[var(--color-green)] hover:underline no-underline">{category.name_es}</a></dd>
+              </div>
+            )}
+          </dl>
+          <a href={tool.website_url} target="_blank" rel="nofollow" class="block text-center mt-5 px-4 py-2.5 rounded-lg bg-[var(--color-green)] text-white text-sm font-medium hover:bg-[var(--color-green-light)] transition-colors no-underline">
+            Ir a {tool.name} →
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
