@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import ToolCard from '@/components/ToolCard.astro'
 import FAQ from '@/components/FAQ.astro'
+import AdSlot from '@/components/AdSlot.astro'
 import { getToolBySlug, getAlternativesForTool, getGeneratedContent, getCategoryBySlug, getCategories } from '@/lib/data'
 import { getHreflang } from '@/lib/hreflang'
 import type { Tool } from '@/lib/types'
@@ -71,6 +72,9 @@ const schema = {
         </p>
       )}
     </header>
+
+    <!-- Ad -->
+    <AdSlot slot="alt-top" format="horizontal" />
 
     <!-- Comparison Table -->
     <section class="mb-10">
@@ -159,6 +163,9 @@ const schema = {
 
     <!-- FAQ -->
     {faqs.length > 0 && <FAQ faqs={faqs} />}
+
+    <!-- Ad Bottom -->
+    <AdSlot slot="alt-bottom" format="horizontal" />
 
     <!-- Related Category -->
     {category && (
