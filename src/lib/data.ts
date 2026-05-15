@@ -56,7 +56,8 @@ async function safeQuery<T>(queryFn: () => PromiseLike<{ data: T | null; error?:
       console.warn(`[db] Query error: ${error.message || error}`)
       return fallback
     }
-    if (!data) return fallback
+    if (data === null || data === undefined) return fallback
+    if (Array.isArray(data) && data.length === 0) return fallback
     return data
   } catch (err) {
     console.warn(`[db] Connection/Timeout:`, (err as Error).message)
