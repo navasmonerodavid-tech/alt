@@ -21,6 +21,8 @@ export async function GET() {
     ...categories.map(c => ({ loc: `/en/tools/${c.slug}`, priority: '0.8', changefreq: 'weekly' })),
     ...tools.filter(t => t.slug).map(t => ({ loc: `/alternativas-a/${t.slug}`, priority: '0.9', changefreq: 'weekly' })),
     ...tools.filter(t => t.slug).map(t => ({ loc: `/en/alternatives-to/${t.slug}`, priority: '0.9', changefreq: 'weekly' })),
+    ...tools.filter(t => t.slug).map(t => ({ loc: `/herramienta/${t.slug}`, priority: '0.8', changefreq: 'weekly' })),
+    ...tools.filter(t => t.slug).map(t => ({ loc: `/en/tool/${t.slug}`, priority: '0.8', changefreq: 'weekly' })),
     ...compPairs.map(([a, b]) => ({ loc: `/comparar/${a}-vs-${b}`, priority: '0.7', changefreq: 'weekly' })),
   ]
 
