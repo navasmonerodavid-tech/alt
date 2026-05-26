@@ -16,7 +16,7 @@ const {
   canonical,
   hreflang = [],
   schema,
-  image = '/logo.svg',
+  image = '/og-default.png',
 } = Astro.props
 
 const siteUrl = import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'
@@ -43,6 +43,7 @@ const canonicalUrl = canonical ? new URL(canonical, siteUrl).href : new URL(Astr
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content={title}>
 <meta name="twitter:description" content={description}>
+<meta name="twitter:image" content={new URL(image, siteUrl).href}>
 
 {schema && (
   <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>

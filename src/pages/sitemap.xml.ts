@@ -14,16 +14,21 @@ export async function GET() {
     ['shopify', 'woocommerce'], ['slack', 'mattermost'],
   ]
 
+  const today = new Date().toISOString().split('T')[0]
+
   const urls = [
-    { loc: '/', priority: '1.0', changefreq: 'weekly' },
-    { loc: '/en', priority: '1.0', changefreq: 'weekly' },
-    ...categories.map(c => ({ loc: `/herramientas/${c.slug}`, priority: '0.8', changefreq: 'weekly' })),
-    ...categories.map(c => ({ loc: `/en/tools/${c.slug}`, priority: '0.8', changefreq: 'weekly' })),
-    ...tools.filter(t => t.slug).map(t => ({ loc: `/alternativas-a/${t.slug}`, priority: '0.9', changefreq: 'weekly' })),
-    ...tools.filter(t => t.slug).map(t => ({ loc: `/en/alternatives-to/${t.slug}`, priority: '0.9', changefreq: 'weekly' })),
-    ...tools.filter(t => t.slug).map(t => ({ loc: `/herramienta/${t.slug}`, priority: '0.8', changefreq: 'weekly' })),
-    ...tools.filter(t => t.slug).map(t => ({ loc: `/en/tool/${t.slug}`, priority: '0.8', changefreq: 'weekly' })),
-    ...compPairs.map(([a, b]) => ({ loc: `/comparar/${a}-vs-${b}`, priority: '0.7', changefreq: 'weekly' })),
+    { loc: '/', priority: '1.0', changefreq: 'weekly', lastmod: today },
+    { loc: '/en', priority: '1.0', changefreq: 'weekly', lastmod: today },
+    { loc: '/about', priority: '0.5', changefreq: 'monthly', lastmod: today },
+    { loc: '/privacidad', priority: '0.3', changefreq: 'yearly', lastmod: today },
+    { loc: '/terminos', priority: '0.3', changefreq: 'yearly', lastmod: today },
+    ...categories.map(c => ({ loc: `/herramientas/${c.slug}`, priority: '0.8', changefreq: 'weekly', lastmod: today })),
+    ...categories.map(c => ({ loc: `/en/tools/${c.slug}`, priority: '0.8', changefreq: 'weekly', lastmod: today })),
+    ...tools.filter(t => t.slug).map(t => ({ loc: `/alternativas-a/${t.slug}`, priority: '0.9', changefreq: 'weekly', lastmod: today })),
+    ...tools.filter(t => t.slug).map(t => ({ loc: `/en/alternatives-to/${t.slug}`, priority: '0.9', changefreq: 'weekly', lastmod: today })),
+    ...tools.filter(t => t.slug).map(t => ({ loc: `/herramienta/${t.slug}`, priority: '0.8', changefreq: 'weekly', lastmod: today })),
+    ...tools.filter(t => t.slug).map(t => ({ loc: `/en/tool/${t.slug}`, priority: '0.8', changefreq: 'weekly', lastmod: today })),
+    ...compPairs.map(([a, b]) => ({ loc: `/comparar/${a}-vs-${b}`, priority: '0.7', changefreq: 'weekly', lastmod: today })),
   ]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -31,6 +36,7 @@ export async function GET() {
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls.map(u => `  <url>
     <loc>${siteUrl}${u.loc}</loc>
+    <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`).join('\n')}

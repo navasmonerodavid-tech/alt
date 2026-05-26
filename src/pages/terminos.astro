@@ -1,0 +1,62 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+const pageTitle = 'Términos de Uso — alt/'
+const pageDesc = 'Términos y condiciones de uso de alt/.'
+---
+
+<BaseLayout title={pageTitle} description={pageDesc} lang="es" canonical="/terminos">
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <h1 class="text-3xl font-bold mb-2 text-[var(--color-ink)]">Términos de Uso</h1>
+    <p class="text-sm text-[var(--color-ink-light)] mb-8">Última actualización: 26 de mayo de 2026</p>
+
+    <div class="prose prose-lg max-w-none text-[var(--color-ink)] space-y-6">
+      <section>
+        <h2 class="text-xl font-semibold mb-3">1. Aceptación de los términos</h2>
+        <p>Al acceder y utilizar alt/, aceptas estos términos de uso. Si no estás de acuerdo, por favor no utilices el sitio.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">2. Descripción del servicio</h2>
+        <p>alt/ es un sitio web que ofrece comparativas y alternativas a herramientas SaaS. Proporcionamos información sobre precios, valoraciones y características de herramientas de software.</p>
+        <p>Toda la información se proporciona con fines informativos. No garantizamos la exactitud, integridad o actualidad de la información mostrada.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">3. Enlaces de afiliados</h2>
+        <p>Algunos enlaces en este sitio son enlaces de afiliado. Esto significa que podemos recibir una compensación económica si realizas una acción (como registrarte o comprar) a través de dichos enlaces. Esto no afecta al precio que pagas ni a nuestra objetividad en las comparativas.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">4. Propiedad intelectual</h2>
+        <p>El contenido original de alt/ (textos, estructura, diseño) está protegido por derechos de autor. Los logotipos y nombres de herramientas pertenecen a sus respectivos propietarios.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">5. Limitación de responsabilidad</h2>
+        <p>alt/ no se hace responsable de:</p>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Errores u omisiones en la información proporcionada</li>
+          <li>Decisiones tomadas basándose en la información del sitio</li>
+          <li>El contenido de sitios web de terceros enlazados</li>
+          <li>Interrupciones o problemas técnicos del servicio</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">6. Cambios en los términos</h2>
+        <p>Nos reservamos el derecho a modificar estos términos en cualquier momento. Los cambios entrarán en vigor inmediatamente después de su publicación.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">7. Legislación aplicable</h2>
+        <p>Estos términos se rigen por la legislación española. Cualquier disputa se resolverá en los tribunales de Málaga, España.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">8. Contacto</h2>
+        <p>Para cualquier consulta sobre estos términos, puedes contactar a través del formulario disponible en el sitio.</p>
+      </section>
+    </div>
+  </div>
+</BaseLayout>

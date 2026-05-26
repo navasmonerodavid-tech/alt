@@ -22,6 +22,7 @@ const { title, description, lang, canonical, schema, hreflang } = Astro.props
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <SEO title={title} description={description} lang={lang} canonical={canonical} schema={schema} hreflang={hreflang} />
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "REPLACE_WITH_YOUR_CF_TOKEN"}'></script>
   </head>
   <body class="min-h-screen flex flex-col bg-[var(--color-cream)] text-[var(--color-ink)]">
     <Header lang={lang || 'es'} />

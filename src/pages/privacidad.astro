@@ -1,0 +1,61 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+const pageTitle = 'Política de Privacidad — alt/'
+const pageDesc = 'Política de privacidad de alt/. Cómo tratamos tus datos personales.'
+---
+
+<BaseLayout title={pageTitle} description={pageDesc} lang="es" canonical="/privacidad">
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <h1 class="text-3xl font-bold mb-2 text-[var(--color-ink)]">Política de Privacidad</h1>
+    <p class="text-sm text-[var(--color-ink-light)] mb-8">Última actualización: 26 de mayo de 2026</p>
+
+    <div class="prose prose-lg max-w-none text-[var(--color-ink)] space-y-6">
+      <section>
+        <h2 class="text-xl font-semibold mb-3">1. Responsable del tratamiento</h2>
+        <p>El responsable del tratamiento de tus datos personales es el titular de este sitio web, con domicilio en Málaga, España.</p>
+        <p>Para cualquier consulta sobre protección de datos, puedes contactar a través del formulario de contacto disponible en el sitio.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">2. Datos que recopilamos</h2>
+        <p>Actualmente <strong>no recopilamos datos personales</strong> de forma activa. Este sitio web:</p>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>No utiliza cookies de seguimiento</li>
+          <li>No recopila direcciones de correo electrónico (excepto si te suscribes a nuestra newsletter, en cuyo caso solo almacenamos tu email)</li>
+          <li>No utiliza Google Analytics ni servicios similares de tracking</li>
+        </ul>
+        <p class="mt-3">Utilizamos <strong>Cloudflare Web Analytics</strong>, un servicio de análisis web que <strong>no utiliza cookies</strong> y es respetuoso con la privacidad. No recopila datos personales ni rastrea a los usuarios entre sitios.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">3. Enlaces de afiliados</h2>
+        <p>Algunos de los enlaces a herramientas SaaS en este sitio son enlaces de afiliado. Esto significa que podemos recibir una comisión si te registras en el servicio a través de nuestro enlace, sin coste adicional para ti. Estos enlaces están marcados con el atributo <code>rel="nofollow sponsored"</code>.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">4. Enlaces a terceros</h2>
+        <p>Nuestro sitio contiene enlaces a sitios web de terceros. No somos responsables de las prácticas de privacidad de dichos sitios. Te recomendamos leer sus políticas de privacidad.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">5. Tus derechos</h2>
+        <p>De acuerdo con el Reglamento General de Protección de Datos (RGPD) y la Ley Orgánica de Protección de Datos (LOPDGDD), tienes derecho a:</p>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Acceder a tus datos personales</li>
+          <li>Rectificar datos inexactos</li>
+          <li>Solicitar la supresión de tus datos</li>
+          <li>Oponerte al tratamiento</li>
+          <li>Solicitar la limitación del tratamiento</li>
+          <li>Portabilidad de los datos</li>
+        </ul>
+        <p class="mt-3">Para ejercer estos derechos, contacta con nosotros.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-3">6. Cambios en esta política</h2>
+        <p>Nos reservamos el derecho a modificar esta política de privacidad. Los cambios se publicarán en esta página. Te recomendamos revisarla periódicamente.</p>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
