@@ -215,7 +215,7 @@ export async function getAlternativesForTool(toolSlug: string): Promise<(Tool & 
   )
   const extraByRating = categoryTools
     .sort((a, b) => (b.rating_g2 || 3) - (a.rating_g2 || 3))
-    .slice(0, 10)
+    .slice(0, 14)
 
   for (const t of extraByRating) {
     result.push({
@@ -245,7 +245,7 @@ export async function getGeneratedContent(toolId: string): Promise<GeneratedCont
 export async function searchTools(query: string, lang: string = 'es'): Promise<Tool[]> {
   const q = query.toLowerCase().trim()
   const source = await getTools()
-  if (!q) return source.slice(0, 10)
+  if (!q) return source.slice(0, 14)
 
   const descField = lang === 'en' ? 'description_en' : 'description_es'
 
