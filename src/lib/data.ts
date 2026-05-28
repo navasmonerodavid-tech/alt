@@ -4,7 +4,14 @@ import {
   tools as mockTools,
   generatedContent as mockContent,
 } from './seed-data'
+import { generatedContentData } from './content-data'
 import type { Category, Tool, GeneratedContent } from './types'
+
+// Merge seed content with generated content data
+const allMockContent = [
+  ...mockContent,
+  ...generatedContentData,
+]
 
 const hasSupabase = () => !!(import.meta.env.SUPABASE_URL && import.meta.env.SUPABASE_ANON_KEY)
 
@@ -88,25 +95,63 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 // ============================================================
 
 export async function getTools(): Promise<Tool[]> {
-  return safeQuery(
+  const result = await safeQuery(
     () => supabase.from('tools').select('*'),
     mockTools.map(({ alternatives, ...t }) => t)
   )
+  return result.map(t => ({
+    ...t,
+    logo_url: getToolLogoUrl(t.slug, t.logo_url),
+  }))
 }
 
 export async function getToolBySlug(slug: string): Promise<Tool | null> {
-  return safeQuery(
+  const result = await safeQuery(
     () => supabase.from('tools').select('*').eq('slug', slug).single(),
     mockTools.find(t => t.slug === slug) || null
   )
+  if (!result) return null
+  return {
+    ...result,
+    logo_url: getToolLogoUrl(result.slug, result.logo_url),
+  }
 }
 
 export async function getToolsByCategory(categorySlug: string): Promise<Tool[]> {
+  const resultFilter = (tools: typeof mockTools) => tools.filter(t => {
+    const cat = mockCategories.find(c => c.id === t.category_id)
+    return cat?.slug === categorySlug
+  })
+
   if (!hasSupabase()) {
-    return mockTools.filter(t => {
-      const cat = mockCategories.find(c => c.id === t.category_id)
-      return cat?.slug === categorySlug
-    })
+    return resultFilter(mockTools).map(t => ({
+      ...t,
+      logo_url: getToolLogoUrl(t.slug, t.logo_url),
+    }))
+  }
+
+  try {
+    const cat = await getCategoryBySlug(categorySlug)
+    if (!cat) return []
+    const { data, error } = await supabase
+      .from('tools')
+      .select('*')
+      .eq('category_id', cat.id)
+    if (error || !data) {
+      return resultFilter(mockTools).map(t => ({
+        ...t,
+        logo_url: getToolLogoUrl(t.slug, t.logo_url),
+      }))
+    }
+    return data.map((t: any) => ({
+      ...t,
+      logo_url: getToolLogoUrl(t.slug, t.logo_url),
+    }))
+  } catch {
+    return resultFilter(mockTools).map(t => ({
+      ...t,
+      logo_url: getToolLogoUrl(t.slug, t.logo_url),
+    }))
   }
 
   try {
@@ -139,28 +184,57 @@ export async function getAlternativesForTool(toolSlug: string): Promise<(Tool & 
   cons_en: string | null
 })[]> {
   const tool = mockTools.find(t => t.slug === toolSlug)
-  if (!tool || !('alternatives' in tool) || !tool.alternatives) return []
+  if (!tool) return []
 
-  return tool.alternatives
-    .map(alt => {
+  const result: any[] = []
+  const existingSlugs = new Set<string>()
+  existingSlugs.add(toolSlug)
+
+  // Add defined alternatives if they exist
+  if ('alternatives' in tool && Array.isArray(tool.alternatives)) {
+    for (const alt of tool.alternatives) {
       const altTool = mockTools.find(t => t.slug === alt.alternative_slug)
-      if (!altTool) return null
-      return {
+      if (!altTool) continue
+      existingSlugs.add(alt.alternative_slug)
+      result.push({
         ...altTool,
-        rank: alt.rank,
+        rank: alt.rank || result.length + 1,
         pros_es: null,
         pros_en: null,
         cons_es: null,
         cons_en: null,
-      }
+      })
+    }
+  }
+
+  // Expand: add tools from same category not already listed
+  const categoryTools = mockTools.filter(t =>
+    t.category_id === tool.category_id &&
+    !existingSlugs.has(t.slug) &&
+    t.slug
+  )
+  const extraByRating = categoryTools
+    .sort((a, b) => (b.rating_g2 || 3) - (a.rating_g2 || 3))
+    .slice(0, 10)
+
+  for (const t of extraByRating) {
+    result.push({
+      ...t,
+      rank: result.length + 1,
+      pros_es: null,
+      pros_en: null,
+      cons_es: null,
+      cons_en: null,
     })
-    .filter(Boolean) as any[]
+  }
+
+  return result
 }
 
 export async function getGeneratedContent(toolId: string): Promise<GeneratedContent | null> {
   return safeQuery(
     () => supabase.from('generated_content').select('*').eq('tool_id', toolId).single(),
-    mockContent.find(c => c.tool_id === toolId) || null
+    allMockContent.find(c => c.tool_id === toolId) || null
   )
 }
 
@@ -203,4 +277,57 @@ export async function getToolCount(): Promise<number> {
   } catch {
     return mockTools.length
   }
+}
+
+// ============================================================
+// LOGO URL HELPER
+// ============================================================
+
+const logoDomains: Record<string, string> = {
+  notion: 'notion.so', slack: 'slack.com', figma: 'figma.com',
+  trello: 'trello.com', asana: 'asana.com', clickup: 'clickup.com',
+  monday: 'monday.com', hubspot: 'hubspot.com', pipedrive: 'pipedrive.com',
+  semrush: 'semrush.com', ahrefs: 'ahrefs.com', canva: 'canva.com',
+  obsidian: 'obsidian.md', anytype: 'anytype.io', linear: 'linear.app',
+  jira: 'atlassian.com', discord: 'discord.com', mattermost: 'mattermost.com',
+  penpot: 'penpot.app', mailchimp: 'mailchimp.com', brevo: 'brevo.com',
+  zapier: 'zapier.com', make: 'make.com', n8n: 'n8n.io',
+  'google-analytics': 'google.com', plausible: 'plausible.io',
+  shopify: 'shopify.com', woocommerce: 'woocommerce.com',
+  'zoho-crm': 'zoho.com', airtable: 'airtable.com', basecamp: 'basecamp.com',
+  wrike: 'wrike.com', todoist: 'todoist.com', evernote: 'evernote.com',
+  typeform: 'typeform.com', jotform: 'jotform.com', bubble: 'bubble.io',
+  webflow: 'webflow.com', wordpress: 'wordpress.com', ghost: 'ghost.org',
+  squarespace: 'squarespace.com', wix: 'wix.com', stripe: 'stripe.com',
+  paypal: 'paypal.com', revolut: 'revolut.com', wise: 'wise.com',
+  quickbooks: 'quickbooks.com', xero: 'xero.com', freshbooks: 'freshbooks.com',
+  grammarly: 'grammarly.com', hotjar: 'hotjar.com', mixpanel: 'mixpanel.com',
+  amplitude: 'amplitude.com', tableau: 'tableau.com', hootsuite: 'hootsuite.com',
+  buffer: 'buffer.com', salesforce: 'salesforce.com', mailerlite: 'mailerlite.com',
+  activecampaign: 'activecampaign.com', getresponse: 'getresponse.com',
+  sendgrid: 'sendgrid.com', klaviyo: 'klaviyo.com', convertkit: 'convertkit.com',
+  calendly: 'calendly.com', zoom: 'zoom.us', gong: 'gong.io',
+  intercom: 'intercom.com', drift: 'drift.com', crisp: 'crisp.chat',
+  tawkto: 'tawk.to', zendesk: 'zendesk.com', freshdesk: 'freshdesk.com',
+  helpscout: 'helpscout.com', posthog: 'posthog.com', datadog: 'datadoghq.com',
+  splunk: 'splunk.com', segment: 'segment.com', retool: 'retool.com',
+  budibase: 'budibase.com', strapi: 'strapi.io', contentful: 'contentful.com',
+  sanity: 'sanity.io', drupal: 'drupal.org', joomla: 'joomla.org',
+  hugo: 'gohugo.io', astro: 'astro.build', nextjs: 'nextjs.org',
+  mysql: 'mysql.com', postgresql: 'postgresql.org', redis: 'redis.io',
+  mongodb: 'mongodb.com', elasticsearch: 'elastic.co', neo4j: 'neo4j.com',
+  docker: 'docker.com', github: 'github.com', gitlab: 'gitlab.com',
+  vercel: 'vercel.com', netlify: 'netlify.com', heroku: 'heroku.com',
+  sketch: 'sketch.com', framer: 'framer.com', invision: 'invisionapp.com',
+  'adobe-xd': 'adobe.com', gimp: 'gimp.org', inkscape: 'inkscape.org',
+  blender: 'blender.org', figjam: 'figma.com', miro: 'miro.com',
+  mural: 'mural.co', lucidchart: 'lucidchart.com', drawio: 'diagrams.net',
+  excalidraw: 'excalidraw.com', tldraw: 'tldraw.com',
+}
+
+export function getToolLogoUrl(slug: string, fallbackUrl: string | null): string | null {
+  if (fallbackUrl) return fallbackUrl
+  const domain = logoDomains[slug]
+  if (domain) return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
+  return null
 }

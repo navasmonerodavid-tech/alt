@@ -33,10 +33,16 @@ const priceLabel = () => {
   return isEn ? 'Paid' : 'De pago'
 }
 
+const ctaLabel = () => {
+  if (priceModel === 'free') return isEn ? 'Get Started' : 'Empezar'
+  if (priceModel === 'freemium') return isEn ? 'Try Free' : 'Probar gratis'
+  return isEn ? 'View Pricing' : 'Ver precios'
+}
+
 const ctaUrl = affiliateUrl || websiteUrl
 ---
 
-<div class="group bg-white border border-[var(--color-border)] rounded-xl p-5 hover:border-[var(--color-green)] hover:shadow-sm transition-all">
+<div class="group bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-5 hover:border-[var(--color-green)] hover:shadow-sm transition-all" data-tool-card data-price={priceModel} data-open-source={String(!!isOpenSource)} data-rating={String(rating || 0)}>
   <div class="flex items-start gap-4">
     <div class="w-12 h-12 rounded-lg bg-[var(--color-green-bg)] flex items-center justify-center shrink-0 overflow-hidden">
       {logoUrl ? (
@@ -75,14 +81,14 @@ const ctaUrl = affiliateUrl || websiteUrl
         ))}
       </div>
     </div>
-    <div class="shrink-0 self-center">
+    <div class="shrink-0 self-center flex items-center gap-3">
       <a
         href={ctaUrl}
         target="_blank"
         rel={affiliateUrl ? 'nofollow sponsored' : 'nofollow'}
         class="inline-block text-sm font-medium px-4 py-2 rounded-lg bg-[var(--color-green)] text-white hover:bg-[var(--color-green-light)] transition-colors no-underline whitespace-nowrap"
       >
-        {isEn ? 'Visit' : 'Visitar'} →
+        {ctaLabel()} →
       </a>
     </div>
   </div>

@@ -1,0 +1,135 @@
+---
+export interface Props {
+  lang?: string
+  totalTools: number
+}
+
+const { lang = 'es', totalTools } = Astro.props
+const isEn = lang === 'en'
+const perPage = 20
+const totalPages = Math.ceil(totalTools / perPage)
+---
+
+<div id="tool-controls" class="mb-6 space-y-4">
+  <div class="flex flex-wrap items-center gap-2">
+    <span class="text-sm font-medium text-[var(--color-ink-light)]">{isEn ? 'Filter:' : 'Filtrar:'}</span>
+    <button data-filter="all" class="filter-btn px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--color-green)] bg-[var(--color-green)] text-white active">
+      {isEn ? 'All' : 'Todos'} ({totalTools})
+    </button>
+    <button data-filter="free" class="filter-btn px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink-light)] hover:border-[var(--color-green)]">
+      {isEn ? 'Free' : 'Gratis'}
+    </button>
+    <button data-filter="freemium" class="filter-btn px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink-light)] hover:border-[var(--color-green)]">
+      Freemium
+    </button>
+    <button data-filter="paid" class="filter-btn px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink-light)] hover:border-[var(--color-green)]">
+      {isEn ? 'Paid' : 'De pago'}
+    </button>
+    <span class="w-px h-5 bg-[var(--color-border)] mx-1"></span>
+    <button data-filter="open-source" class="filter-btn px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink-light)] hover:border-[var(--color-green)]">
+      {isEn ? 'Open Source' : 'Código abierto'}
+    </button>
+    <button data-filter="high-rated" class="filter-btn px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink-light)] hover:border-[var(--color-green)]">
+      ⭐ 4.5+
+    </button>
+  </div>
+
+  {totalPages > 1 && (
+    <div class="flex items-center justify-between text-sm">
+      <span id="showing-label" class="text-[var(--color-ink-light)]">
+        {isEn ? `Showing 1–${Math.min(perPage, totalTools)} of ${totalTools}` : `Mostrando 1–${Math.min(perPage, totalTools)} de ${totalTools}`}
+      </span>
+      <div id="pagination" class="flex gap-1">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            data-page={i}
+            class={`page-btn px-3 py-1 rounded-lg text-xs font-medium border border-[var(--color-border)] ${i === 0 ? 'bg-[var(--color-green)] text-white border-[var(--color-green)]' : 'bg-[var(--color-surface)] text-[var(--color-ink-light)] hover:border-[var(--color-green)]'}`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
+<script>
+  (function() {
+    const container = document.getElementById('tool-list')
+    const cards = Array.from(container?.querySelectorAll('[data-tool-card]') || [])
+    if (!cards.length) return
+
+    const perPage = 20
+    let currentFilter = 'all'
+    let currentPage = 0
+
+    function getFilterValue(card: Element, filter: string): boolean {
+      const price = card.getAttribute('data-price') || ''
+      const openSource = card.getAttribute('data-open-source') === 'true'
+      const rating = parseFloat(card.getAttribute('data-rating') || '0')
+
+      switch (filter) {
+        case 'all': return true
+        case 'free': return price === 'free'
+        case 'freemium': return price === 'freemium'
+        case 'paid': return price === 'paid'
+        case 'open-source': return openSource
+        case 'high-rated': return rating >= 4.5
+        default: return true
+      }
+    }
+
+    function applyFilterAndPage() {
+      let filtered = cards.filter(c => getFilterValue(c, currentFilter))
+      const totalFiltered = filtered.length
+      const totalPages = Math.max(1, Math.ceil(totalFiltered / perPage))
+
+      if (currentPage >= totalPages) currentPage = 0
+
+      const start = currentPage * perPage
+      const end = start + perPage
+
+      cards.forEach(c => (c as HTMLElement).style.display = 'none')
+      filtered.slice(start, end).forEach(c => (c as HTMLElement).style.display = '')
+
+      // Update showing label
+      const label = document.getElementById('showing-label')
+      if (label) {
+        const showing = totalFiltered === 0 ? 0 : Math.min(end, totalFiltered)
+        if (totalPages > 1) {
+          label.textContent = `Mostrando ${start + 1}–${showing} de ${totalFiltered}`
+        } else {
+          label.textContent = `${totalFiltered} herramientas`
+        }
+      }
+
+      // Update pagination buttons
+      document.querySelectorAll('.page-btn').forEach(btn => {
+        const page = parseInt((btn as HTMLElement).dataset.page || '0')
+        const isActive = page === currentPage
+        btn.className = `page-btn px-3 py-1 rounded-lg text-xs font-medium border ${isActive ? 'bg-[var(--color-green)] text-white border-[var(--color-green)]' : 'bg-[var(--color-surface)] text-[var(--color-ink-light)] hover:border-[var(--color-green)] border-[var(--color-border)]'}`
+      })
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.className = 'filter-btn px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink-light)] hover:border-[var(--color-green)]'
+        })
+        btn.className = 'filter-btn px-3 py-1.5 text-xs font-medium rounded-lg border border-[var(--color-green)] bg-[var(--color-green)] text-white active'
+        currentFilter = (btn as HTMLElement).dataset.filter || 'all'
+        currentPage = 0
+        applyFilterAndPage()
+      })
+    })
+
+    // Pagination buttons
+    document.querySelectorAll('.page-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentPage = parseInt((btn as HTMLElement).dataset.page || '0')
+        applyFilterAndPage()
+      })
+    })
+  })()
+</script>

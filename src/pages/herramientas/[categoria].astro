@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import ToolCard from '@/components/ToolCard.astro'
+import ToolFilters from '@/components/ToolFilters.astro'
 import { getToolsByCategory } from '@/lib/data'
 import { getHreflang } from '@/lib/hreflang'
 import { categories as mockCategories } from '@/lib/seed-data'
@@ -50,7 +51,9 @@ const schema = {
       <p class="text-lg text-[var(--color-ink-light)]">{category.description_es}</p>
     </header>
 
-    <div class="space-y-4">
+    <ToolFilters lang="es" totalTools={tools.length} />
+
+    <div id="tool-list" class="space-y-4">
       {tools.map(tool => (
         <ToolCard
           name={tool.name}

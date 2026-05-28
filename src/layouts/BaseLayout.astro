@@ -21,12 +21,17 @@ const { title, description, lang, canonical, schema, hreflang } = Astro.props
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <!-- Theme initialization - no flash -->
+    <script is:inline>
+      (function(){var t=localStorage.getItem('alt-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.setAttribute('data-theme','dark')}})()
+    </script>
     <SEO title={title} description={description} lang={lang} canonical={canonical} schema={schema} hreflang={hreflang} />
-    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "REPLACE_WITH_YOUR_CF_TOKEN"}'></script>
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "339f4df8f3144aa88a6891a5740e42c2"}'></script>
   </head>
   <body class="min-h-screen flex flex-col bg-[var(--color-cream)] text-[var(--color-ink)]">
-    <Header lang={lang || 'es'} />
-    <main class="flex-1">
+    <Header lang={lang || 'es'} currentPath={Astro.url?.pathname || ''} />
+    <main id="main-content" class="flex-1">
       <slot />
     </main>
     <Footer lang={lang || 'es'} />

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import ToolCard from '@/components/ToolCard.astro'
+import ToolFilters from '@/components/ToolFilters.astro'
 import { getToolsByCategory } from '@/lib/data'
 import { getHreflang } from '@/lib/hreflang'
 import { categories as mockCategories } from '@/lib/seed-data'
@@ -19,9 +20,21 @@ if (!cat) return Astro.redirect('/en')
 const tools = await getToolsByCategory(category!)
 const pageTitle = `${cat.name_en} — The ${tools.length} best tools in 2026`
 const pageDesc = `Compare the best ${cat.name_en.toLowerCase()} tools. Pricing, ratings, pros and cons. Find the right one for you.`
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: pageTitle,
+  description: pageDesc,
+  itemListElement: tools.map((t, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: { '@type': 'SoftwareApplication', name: t.name },
+  })),
+}
 ---
 
-<BaseLayout title={pageTitle} description={pageDesc} lang="en" canonical={`/en/tools/${category}`} hreflang={getHreflang('category', category!)}>
+<BaseLayout title={pageTitle} description={pageDesc} lang="en" canonical={`/en/tools/${category}`} schema={schema} hreflang={getHreflang('category', category!)}>
   <div class="max-w-6xl mx-auto px-4 py-8">
     <nav class="text-sm text-[var(--color-ink-light)] mb-6">
       <a href="/en" class="hover:text-[var(--color-ink)] transition-colors no-underline">Home</a>
@@ -37,7 +50,9 @@ const pageDesc = `Compare the best ${cat.name_en.toLowerCase()} tools. Pricing, 
       <p class="text-lg text-[var(--color-ink-light)]">{cat.description_en}</p>
     </header>
 
-    <div class="space-y-4">
+    <ToolFilters lang="en" totalTools={tools.length} />
+
+    <div id="tool-list" class="space-y-4">
       {tools.map(tool => (
         <ToolCard
           name={tool.name}

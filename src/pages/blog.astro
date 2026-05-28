@@ -1,0 +1,76 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+const pageTitle = 'Blog — alt/'
+const pageDesc = 'Artículos sobre herramientas SaaS, alternativas, productividad y tecnología. Comparativas reales y análisis independientes.'
+
+const posts = [
+  {
+    slug: 'mejores-alternativas-open-source-2026',
+    title: 'Las 15 mejores alternativas open source a herramientas SaaS en 2026',
+    desc: 'Descubre herramientas de código abierto que pueden reemplazar a Notion, Slack, Figma y más. Sin costes, sin vendor lock-in.',
+    date: '2026-05-15',
+  },
+  {
+    slug: 'guia-elegir-herramienta-saas',
+    title: 'Guía definitiva para elegir la herramienta SaaS adecuada para tu equipo',
+    desc: 'Factores clave: precio, escalabilidad, integraciones, soporte. Aprende a evaluar herramientas como un experto.',
+    date: '2026-05-10',
+  },
+  {
+    slug: 'herramientas-gratis-vs-pago',
+    title: 'Gratis vs De pago: ¿cuándo merece la pena pagar por una herramienta SaaS?',
+    desc: 'Analizamos cuándo las versiones gratuitas son suficientes y cuándo necesitas dar el salto a un plan de pago.',
+    date: '2026-05-05',
+  },
+  {
+    slug: 'tendencias-saas-2026',
+    title: 'Tendencias SaaS 2026: IA, automatización y el futuro del trabajo',
+    desc: 'Lo que viene en el mundo SaaS este año: agentes de IA, plataformas todo en uno, y la revolución del low-code.',
+    date: '2026-04-28',
+  },
+  {
+    slug: 'alternativas-espanolas-saas',
+    title: 'Alternativas españolas y europeas a herramientas SaaS americanas',
+    desc: 'Herramientas made in Europe que respetan el GDPR, están en euros y ofrecen soporte en español.',
+    date: '2026-04-20',
+  },
+]
+---
+
+<BaseLayout title={pageTitle} description={pageDesc} lang="es" canonical="/blog">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <nav class="text-sm text-[var(--color-ink-light)] mb-6">
+      <a href="/" class="hover:text-[var(--color-ink)] transition-colors no-underline">Inicio</a>
+      <span class="mx-2">/</span>
+      <span class="text-[var(--color-ink)]">Blog</span>
+    </nav>
+
+    <header class="mb-10">
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--color-ink)] mb-3">
+        📝 Blog
+      </h1>
+      <p class="text-lg text-[var(--color-ink-light)] max-w-3xl">
+        Artículos sobre herramientas SaaS, alternativas, productividad y tecnología. 
+        Comparativas reales y análisis independientes.
+      </p>
+    </header>
+
+    <div class="space-y-6">
+      {posts.map(post => (
+        <article class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-6 hover:border-[var(--color-green)] transition-all">
+          <time class="text-xs text-[var(--color-ink-light)]">{new Date(post.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+          <h2 class="text-xl font-bold mt-2 mb-2">
+            <a href={`/blog/${post.slug}`} class="text-[var(--color-ink)] hover:text-[var(--color-green)] transition-colors no-underline">
+              {post.title}
+            </a>
+          </h2>
+          <p class="text-sm text-[var(--color-ink-light)]">{post.desc}</p>
+          <a href={`/blog/${post.slug}`} class="inline-block mt-3 text-sm font-medium text-[var(--color-green)] hover:underline no-underline">
+            Leer más →
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

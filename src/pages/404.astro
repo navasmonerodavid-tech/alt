@@ -1,0 +1,46 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+const url = Astro.url.pathname
+const isEn = url.startsWith('/en')
+const homeUrl = isEn ? '/en' : '/'
+---
+
+<BaseLayout
+  title={isEn ? 'Page not found — alt/' : 'Página no encontrada — alt/'}
+  description={isEn ? 'The page you are looking for does not exist.' : 'La página que buscas no existe.'}
+  lang={isEn ? 'en' : 'es'}
+>
+  <div class="max-w-2xl mx-auto px-4 py-24 text-center">
+    <span class="text-7xl font-bold text-[var(--color-green)]/30">404</span>
+    <h1 class="text-3xl font-bold text-[var(--color-ink)] mt-4 mb-2">
+      {isEn ? 'Page not found' : 'Página no encontrada'}
+    </h1>
+    <p class="text-[var(--color-ink-light)] mb-8">
+      {isEn
+        ? 'The page you are looking for does not exist or has been moved.'
+        : 'La página que buscas no existe o ha sido movida.'}
+    </p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a href={homeUrl} class="px-6 py-3 rounded-xl bg-[var(--color-green)] text-white font-medium hover:bg-[var(--color-green-light)] transition-colors no-underline">
+        {isEn ? '← Back home' : '← Volver al inicio'}
+      </a>
+      <a href={isEn ? '/en/tools' : '/herramientas'} class="px-6 py-3 rounded-xl border border-[var(--color-border)] text-[var(--color-ink)] font-medium hover:border-[var(--color-green)] transition-colors no-underline">
+        {isEn ? 'Browse categories' : 'Explorar categorías'}
+      </a>
+    </div>
+
+    <div class="mt-12 border-t border-[var(--color-border)] pt-8">
+      <h2 class="font-semibold mb-4 text-[var(--color-ink)]">
+        {isEn ? 'Popular pages' : 'Páginas populares'}
+      </h2>
+      <div class="flex flex-wrap justify-center gap-3">
+        {['notion', 'slack', 'figma', 'trello', 'zapier', 'canva'].map(slug => (
+          <a href={isEn ? `/en/alternatives-to/${slug}` : `/alternativas-a/${slug}`} class="px-4 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-sm hover:border-[var(--color-green)] no-underline text-[var(--color-ink)]">
+            {isEn ? `${slug} alternatives` : `Alternativas a ${slug}`}
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</BaseLayout>

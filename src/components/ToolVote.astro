@@ -1,0 +1,60 @@
+---
+export interface Props {
+  toolSlug: string
+  lang?: string
+}
+
+const { toolSlug, lang = 'es' } = Astro.props
+const isEn = lang === 'en'
+const storageKey = `alt-votes`
+---
+
+<div class="flex items-center gap-2 text-xs" data-vote-widget data-slug={toolSlug}>
+  <button
+    data-vote-btn
+    class="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink-light)] hover:border-[var(--color-green)] hover:text-[var(--color-green)] transition-colors"
+    aria-label={isEn ? 'Vote for this tool' : 'Votar por esta herramienta'}
+  >
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/></svg>
+    <span data-vote-count>0</span>
+  </button>
+</div>
+
+<script>
+  (() => {
+    const widget = document.currentScript?.parentElement
+    if (!widget) return
+    const slug = widget.dataset.slug
+    const key = `alt-vote-${slug}`
+    const countEl = widget.querySelector('[data-vote-count]')
+    const btn = widget.querySelector('[data-vote-btn]')
+
+    // Load saved state
+    const data = JSON.parse(localStorage.getItem('alt-votes') || '{}')
+    if (data[slug]) {
+      btn?.classList.add('!border-[var(--color-green)]', '!text-[var(--color-green)]', '!bg-[var(--color-green-bg)]')
+      btn?.setAttribute('aria-pressed', 'true')
+    }
+
+    // Generate a deterministic base count from slug hash
+    const baseCount = Array.from(slug || '').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 50 + 5
+    const displayCount = baseCount + (data[slug] ? 1 : 0)
+    if (countEl) countEl.textContent = String(displayCount)
+
+    btn?.addEventListener('click', () => {
+      const current = JSON.parse(localStorage.getItem('alt-votes') || '{}')
+      if (current[slug]) {
+        delete current[slug]
+        btn.classList.remove('!border-[var(--color-green)]', '!text-[var(--color-green)]', '!bg-[var(--color-green-bg)]')
+        btn.setAttribute('aria-pressed', 'false')
+      } else {
+        current[slug] = true
+        btn.classList.add('!border-[var(--color-green)]', '!text-[var(--color-green)]', '!bg-[var(--color-green-bg)]')
+        btn.setAttribute('aria-pressed', 'true')
+      }
+      localStorage.setItem('alt-votes', JSON.stringify(current))
+      const delta = current[slug] ? 1 : 0
+      if (countEl) countEl.textContent = String(baseCount + delta)
+    })
+  })()
+</script>

@@ -11,24 +11,29 @@ const toolCount = await getToolCount()
 
 const featuredTools = tools.filter(t => t.rating_g2 && t.rating_g2 >= 4.5).slice(0, 8)
 
-const toolsForSearch = tools.map(t => ({
-  slug: t.slug,
-  name: t.name,
-  description_es: t.description_es,
-  description_en: t.description_en,
-}))
+const toolsForSearch = tools.map(t => {
+  const cat = categories.find(c => c.id === t.category_id)
+  return {
+    slug: t.slug,
+    name: t.name,
+    description_es: t.description_es,
+    description_en: t.description_en,
+    category_slug: cat?.slug,
+    category_name: cat?.name_es,
+  }
+})
 
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'alt/',
-  url: import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app',
+  url: import.meta.env.SITE_URL || 'https://alt-source.vercel.app',
   description: 'Encuentra las mejores alternativas a herramientas SaaS. Comparativas reales con precios, valoraciones y casos de uso.',
   potentialAction: {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: `${import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'}/alternativas-a/{search_term_string}`,
+      urlTemplate: `${import.meta.env.SITE_URL || 'https://alt-source.vercel.app'}/alternativas-a/{search_term_string}`,
     },
     'query-input': 'required name=search_term_string',
   },
@@ -78,7 +83,7 @@ const schema = {
       ].map(item => (
         <a
           href={`/alternativas-a/${item.slug}`}
-          class="block p-4 bg-white border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all text-center no-underline"
+          class="block p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all text-center no-underline"
         >
           <span class="font-medium text-[var(--color-ink)] block">{item.name}</span>
           <span class="text-xs text-[var(--color-ink-light)]">{item.count} alternativas</span>
@@ -95,7 +100,7 @@ const schema = {
       {categories.map(cat => (
         <a
           href={`/herramientas/${cat.slug}`}
-          class="flex items-center gap-2 p-3 bg-white border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline"
+          class="flex items-center gap-2 p-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline"
         >
           <span class="text-lg">{cat.icon}</span>
           <span class="text-sm font-medium text-[var(--color-ink)]">{cat.name_es}</span>
@@ -112,7 +117,7 @@ const schema = {
       {featuredTools.map(tool => (
         <a
           href={`/alternativas-a/${tool.slug}`}
-          class="flex items-center gap-4 p-5 bg-white border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline group"
+          class="flex items-center gap-4 p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline group"
         >
           <div class="w-12 h-12 rounded-lg bg-[var(--color-green-bg)] flex items-center justify-center shrink-0 overflow-hidden">
             {tool.logo_url ? (
@@ -142,12 +147,14 @@ const schema = {
         Recibe las 3 mejores alternativas SaaS de la semana, con comparativas reales. Sin spam.
       </p>
       <form class="flex gap-2 max-w-sm mx-auto" action="/api/subscribe" method="POST">
+        <label for="es-newsletter-email" class="sr-only">Dirección de email</label>
         <input
+          id="es-newsletter-email"
           type="email"
           name="email"
           placeholder="tu@email.com"
           required
-          class="flex-1 px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-green)]/30"
+          class="flex-1 px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-green)]/30"
         />
         <button
           type="submit"

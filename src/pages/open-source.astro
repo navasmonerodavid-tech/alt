@@ -1,0 +1,68 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import ToolCard from '@/components/ToolCard.astro'
+import ToolFilters from '@/components/ToolFilters.astro'
+import { getTools } from '@/lib/data'
+
+const allTools = await getTools()
+const openSourceTools = allTools.filter(t => t.is_open_source)
+
+const pageTitle = 'Mejores herramientas Open Source en 2026 — alt/'
+const pageDesc = 'Descubre las mejores herramientas open source y de código abierto. Alternativas gratuitas, transparentes y sin limitaciones. Compara precios, valoraciones y funcionalidades.'
+---
+
+<BaseLayout title={pageTitle} description={pageDesc} lang="es" canonical="/open-source">
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <nav class="text-sm text-[var(--color-ink-light)] mb-6">
+      <a href="/" class="hover:text-[var(--color-ink)] transition-colors no-underline">Inicio</a>
+      <span class="mx-2">/</span>
+      <span class="text-[var(--color-ink)]">Open Source</span>
+    </nav>
+
+    <header class="mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--color-ink)] mb-3">
+        🛡️ Herramientas Open Source
+      </h1>
+      <p class="text-lg text-[var(--color-ink-light)] max-w-3xl">
+        Alternativas de código abierto a herramientas SaaS propietarias. Sin costes ocultos, sin vendor lock-in, 
+        y con la transparencia que solo el open source puede ofrecer.
+      </p>
+    </header>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+      <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-xl p-5">
+        <h3 class="font-semibold text-[var(--color-ink)] mb-1">🔓 Código abierto</h3>
+        <p class="text-sm text-[var(--color-ink-light)]">Todo el código es público y auditable. Sin puertas traseras.</p>
+      </div>
+      <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-xl p-5">
+        <h3 class="font-semibold text-[var(--color-ink)] mb-1">💰 Sin sorpresas</h3>
+        <p class="text-sm text-[var(--color-ink-light)]">Sin cambios de precio inesperados. La mayoría son gratuitas o muy económicas.</p>
+      </div>
+      <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-xl p-5">
+        <h3 class="font-semibold text-[var(--color-ink)] mb-1">🌍 Comunidad</h3>
+        <p class="text-sm text-[var(--color-ink-light)]">Mantenidas por comunidades activas. Tú también puedes contribuir.</p>
+      </div>
+    </div>
+
+    <ToolFilters lang="es" totalTools={openSourceTools.length} />
+
+    <div id="tool-list" class="space-y-4">
+      {openSourceTools.map(tool => (
+        <ToolCard
+          name={tool.name}
+          slug={tool.slug}
+          logoUrl={tool.logo_url}
+          description={tool.description_es}
+          priceModel={tool.price_model}
+          priceStarting={tool.price_starting}
+          rating={tool.rating_g2}
+          isOpenSource={tool.is_open_source}
+          tags={tool.tags}
+          affiliateUrl={tool.affiliate_url}
+          websiteUrl={tool.website_url}
+          lang="es"
+        />
+      ))}
+    </div>
+  </div>
+</BaseLayout>
