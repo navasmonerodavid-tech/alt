@@ -5,6 +5,7 @@ import {
   generatedContent as mockContent,
 } from './seed-data'
 import { generatedContentData } from './content-data'
+import { logoDomains } from './logo-domains'
 import type { Category, Tool, GeneratedContent } from './types'
 
 // Merge seed content with generated content data
@@ -282,48 +283,6 @@ export async function getToolCount(): Promise<number> {
 // ============================================================
 // LOGO URL HELPER
 // ============================================================
-
-const logoDomains: Record<string, string> = {
-  notion: 'notion.so', slack: 'slack.com', figma: 'figma.com',
-  trello: 'trello.com', asana: 'asana.com', clickup: 'clickup.com',
-  monday: 'monday.com', hubspot: 'hubspot.com', pipedrive: 'pipedrive.com',
-  semrush: 'semrush.com', ahrefs: 'ahrefs.com', canva: 'canva.com',
-  obsidian: 'obsidian.md', anytype: 'anytype.io', linear: 'linear.app',
-  jira: 'atlassian.com', discord: 'discord.com', mattermost: 'mattermost.com',
-  penpot: 'penpot.app', mailchimp: 'mailchimp.com', brevo: 'brevo.com',
-  zapier: 'zapier.com', make: 'make.com', n8n: 'n8n.io',
-  'google-analytics': 'google.com', plausible: 'plausible.io',
-  shopify: 'shopify.com', woocommerce: 'woocommerce.com',
-  'zoho-crm': 'zoho.com', airtable: 'airtable.com', basecamp: 'basecamp.com',
-  wrike: 'wrike.com', todoist: 'todoist.com', evernote: 'evernote.com',
-  typeform: 'typeform.com', jotform: 'jotform.com', bubble: 'bubble.io',
-  webflow: 'webflow.com', wordpress: 'wordpress.com', ghost: 'ghost.org',
-  squarespace: 'squarespace.com', wix: 'wix.com', stripe: 'stripe.com',
-  paypal: 'paypal.com', revolut: 'revolut.com', wise: 'wise.com',
-  quickbooks: 'quickbooks.com', xero: 'xero.com', freshbooks: 'freshbooks.com',
-  grammarly: 'grammarly.com', hotjar: 'hotjar.com', mixpanel: 'mixpanel.com',
-  amplitude: 'amplitude.com', tableau: 'tableau.com', hootsuite: 'hootsuite.com',
-  buffer: 'buffer.com', salesforce: 'salesforce.com', mailerlite: 'mailerlite.com',
-  activecampaign: 'activecampaign.com', getresponse: 'getresponse.com',
-  sendgrid: 'sendgrid.com', klaviyo: 'klaviyo.com', convertkit: 'convertkit.com',
-  calendly: 'calendly.com', zoom: 'zoom.us', gong: 'gong.io',
-  intercom: 'intercom.com', drift: 'drift.com', crisp: 'crisp.chat',
-  tawkto: 'tawk.to', zendesk: 'zendesk.com', freshdesk: 'freshdesk.com',
-  helpscout: 'helpscout.com', posthog: 'posthog.com', datadog: 'datadoghq.com',
-  splunk: 'splunk.com', segment: 'segment.com', retool: 'retool.com',
-  budibase: 'budibase.com', strapi: 'strapi.io', contentful: 'contentful.com',
-  sanity: 'sanity.io', drupal: 'drupal.org', joomla: 'joomla.org',
-  hugo: 'gohugo.io', astro: 'astro.build', nextjs: 'nextjs.org',
-  mysql: 'mysql.com', postgresql: 'postgresql.org', redis: 'redis.io',
-  mongodb: 'mongodb.com', elasticsearch: 'elastic.co', neo4j: 'neo4j.com',
-  docker: 'docker.com', github: 'github.com', gitlab: 'gitlab.com',
-  vercel: 'vercel.com', netlify: 'netlify.com', heroku: 'heroku.com',
-  sketch: 'sketch.com', framer: 'framer.com', invision: 'invisionapp.com',
-  'adobe-xd': 'adobe.com', gimp: 'gimp.org', inkscape: 'inkscape.org',
-  blender: 'blender.org', figjam: 'figma.com', miro: 'miro.com',
-  mural: 'mural.co', lucidchart: 'lucidchart.com', drawio: 'diagrams.net',
-  excalidraw: 'excalidraw.com', tldraw: 'tldraw.com',
-}
 
 export function getToolLogoUrl(slug: string, fallbackUrl: string | null): string | null {
   if (fallbackUrl) return fallbackUrl
