@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface ToolData {
   slug: string
@@ -17,10 +17,7 @@ interface Props {
 export default function SearchBar({ lang = 'es', toolsData }: Props) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
-  const [activeIndex, setActiveIndex] = useState(-1)
   const ref = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const listRef = useRef<HTMLDivElement>(null)
 
   const isEn = lang === 'en'
 
@@ -28,7 +25,6 @@ export default function SearchBar({ lang = 'es', toolsData }: Props) {
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false)
-        setActiveIndex(-1)
       }
     }
     document.addEventListener('mousedown', handleClick)
@@ -45,103 +41,27 @@ export default function SearchBar({ lang = 'es', toolsData }: Props) {
 
   const resultHref = (slug: string) => isEn ? `/en/alternatives-to/${slug}` : `/alternativas-a/${slug}`
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (!open || results.length === 0) {
-      if (e.key === 'ArrowDown' && query.length >= 2) {
-        setOpen(true)
-        setActiveIndex(0)
-        e.preventDefault()
-      }
-      return
-    }
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault()
-        setActiveIndex(prev => (prev < results.length - 1 ? prev + 1 : 0))
-        break
-      case 'ArrowUp':
-        e.preventDefault()
-        setActiveIndex(prev => (prev > 0 ? prev - 1 : results.length - 1))
-        break
-      case 'Enter':
-        e.preventDefault()
-        if (activeIndex >= 0 && activeIndex < results.length) {
-          const r = results[activeIndex]
-          window.location.href = resultHref(r.slug)
-        }
-        break
-      case 'Escape':
-        e.preventDefault()
-        setOpen(false)
-        setActiveIndex(-1)
-        inputRef.current?.blur()
-        break
-    }
-  }, [open, results, activeIndex, query])
-
-  useEffect(() => {
-    if (activeIndex >= 0 && listRef.current) {
-      const items = listRef.current.querySelectorAll('[role="option"]')
-      if (items[activeIndex]) {
-        (items[activeIndex] as HTMLElement).scrollIntoView({ block: 'nearest' })
-      }
-    }
-  }, [activeIndex])
-
-  const handleFocus = () => {
-    if (query.length >= 2 && results.length > 0) {
-      setOpen(true)
-    }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(e.target.value)
-    setOpen(true)
-    setActiveIndex(-1)
-  }
-
-  const comboId = 'search-combobox'
-  const listId = 'search-listbox'
-
   return (
     <div ref={ref} className="relative w-full">
       <div className="relative">
         <input
-          ref={inputRef}
-          role="combobox"
-          aria-expanded={open && results.length > 0}
-          aria-controls={listId}
-          aria-activedescendant={activeIndex >= 0 ? `${comboId}-option-${activeIndex}` : undefined}
-          aria-label={isEn ? 'Search tools' : 'Buscar herramientas'}
-          aria-autocomplete="list"
-          autoComplete="off"
           type="text"
           value={query}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onKeyDown={handleKeyDown}
+          onChange={e => setQuery(e.target.value)}
+          onFocus={() => results.length > 0 && setOpen(true)}
           placeholder={isEn ? 'Search a tool... (e.g. Notion, Slack, Figma)' : 'Busca una herramienta... (ej. Notion, Slack, Figma)'}
-          className="w-full px-5 py-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] placeholder-[var(--color-ink-light)] focus:outline-none focus:ring-2 focus:ring-[var(--color-green)]/30 focus:border-[var(--color-green)] text-lg shadow-sm"
+          className="w-full px-5 py-3.5 rounded-xl border border-[var(--color-border)] bg-white text-[var(--color-ink)] placeholder-[var(--color-ink-light)] focus:outline-none focus:ring-2 focus:ring-[var(--color-green)]/30 focus:border-[var(--color-green)] text-lg shadow-sm"
         />
-        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-ink-light)]" aria-hidden="true">🔍</span>
+        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-ink-light)]">🔍</span>
       </div>
 
       {open && results.length > 0 && (
-        <div
-          id={listId}
-          ref={listRef}
-          role="listbox"
-          className="absolute top-full mt-2 left-0 right-0 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-lg z-50 max-h-80 overflow-y-auto"
-        >
-          {results.map((r, i) => (
+        <div className="absolute top-full mt-2 left-0 right-0 bg-white border border-[var(--color-border)] rounded-xl shadow-lg z-50 max-h-80 overflow-y-auto">
+          {results.map(r => (
             <a
-              id={`${comboId}-option-${i}`}
               key={r.slug}
-              role="option"
-              aria-selected={i === activeIndex}
               href={resultHref(r.slug)}
-              className={`flex items-start gap-3 px-4 py-3 transition-colors no-underline border-b border-[var(--color-border-light)] last:border-0 ${i === activeIndex ? 'bg-[var(--color-green-bg)]' : 'hover:bg-[var(--color-cream)]'}`}
+              className="flex items-start gap-3 px-4 py-3 hover:bg-[var(--color-cream)] transition-colors no-underline border-b border-[var(--color-border-light)] last:border-0"
             >
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-[var(--color-ink)] text-sm">
@@ -157,7 +77,7 @@ export default function SearchBar({ lang = 'es', toolsData }: Props) {
                   </span>
                 )}
               </div>
-              <span className="text-[var(--color-green)] shrink-0 mt-1" aria-hidden="true">→</span>
+              <span className="text-[var(--color-green)] shrink-0 mt-1">→</span>
             </a>
           ))}
         </div>

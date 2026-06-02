@@ -1,0 +1,33 @@
+﻿---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { getCategories } from '@/lib/data'
+
+const categories = await getCategories()
+
+const title = "All SaaS Tool Categories"
+const description = "Browse our complete directory of SaaS alternatives organized by category. Find the perfect tool for your business."
+---
+
+<BaseLayout title={title} description={description} lang="en" canonical="/en/tools">
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <nav class="text-sm text-[var(--color-ink-light)] mb-6">
+      <a href="/en" class="hover:text-[var(--color-ink)] transition-colors no-underline">Home</a>
+      <span class="mx-2">/</span>
+      <span class="text-[var(--color-ink)]">Categories</span>
+    </nav>
+    <h1 class="text-3xl font-bold tracking-tight text-[var(--color-ink)] mb-8">
+      {title}
+    </h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {categories.map(cat => (
+        <a
+          href={`/en/tools/${cat.slug}`}
+          class="flex items-center gap-3 p-4 bg-white border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline"
+        >
+          <span class="text-2xl">{cat.icon}</span>
+          <span class="text-base font-medium text-[var(--color-ink)]">{cat.name_en}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

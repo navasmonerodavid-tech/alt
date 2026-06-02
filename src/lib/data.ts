@@ -4,15 +4,7 @@ import {
   tools as mockTools,
   generatedContent as mockContent,
 } from './seed-data'
-import { generatedContentData } from './content-data'
-import { logoDomains } from './logo-domains'
 import type { Category, Tool, GeneratedContent } from './types'
-
-// Merge seed content with generated content data
-const allMockContent = [
-  ...mockContent,
-  ...generatedContentData,
-]
 
 const hasSupabase = () => !!(import.meta.env.SUPABASE_URL && import.meta.env.SUPABASE_ANON_KEY)
 
@@ -96,63 +88,25 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 // ============================================================
 
 export async function getTools(): Promise<Tool[]> {
-  const result = await safeQuery(
+  return safeQuery(
     () => supabase.from('tools').select('*'),
     mockTools.map(({ alternatives, ...t }) => t)
   )
-  return result.map(t => ({
-    ...t,
-    logo_url: getToolLogoUrl(t.slug, t.logo_url),
-  }))
 }
 
 export async function getToolBySlug(slug: string): Promise<Tool | null> {
-  const result = await safeQuery(
+  return safeQuery(
     () => supabase.from('tools').select('*').eq('slug', slug).single(),
     mockTools.find(t => t.slug === slug) || null
   )
-  if (!result) return null
-  return {
-    ...result,
-    logo_url: getToolLogoUrl(result.slug, result.logo_url),
-  }
 }
 
 export async function getToolsByCategory(categorySlug: string): Promise<Tool[]> {
-  const resultFilter = (tools: typeof mockTools) => tools.filter(t => {
-    const cat = mockCategories.find(c => c.id === t.category_id)
-    return cat?.slug === categorySlug
-  })
-
   if (!hasSupabase()) {
-    return resultFilter(mockTools).map(t => ({
-      ...t,
-      logo_url: getToolLogoUrl(t.slug, t.logo_url),
-    }))
-  }
-
-  try {
-    const cat = await getCategoryBySlug(categorySlug)
-    if (!cat) return []
-    const { data, error } = await supabase
-      .from('tools')
-      .select('*')
-      .eq('category_id', cat.id)
-    if (error || !data) {
-      return resultFilter(mockTools).map(t => ({
-        ...t,
-        logo_url: getToolLogoUrl(t.slug, t.logo_url),
-      }))
-    }
-    return data.map((t: any) => ({
-      ...t,
-      logo_url: getToolLogoUrl(t.slug, t.logo_url),
-    }))
-  } catch {
-    return resultFilter(mockTools).map(t => ({
-      ...t,
-      logo_url: getToolLogoUrl(t.slug, t.logo_url),
-    }))
+    return mockTools.filter(t => {
+      const cat = mockCategories.find(c => c.id === t.category_id)
+      return cat?.slug === categorySlug
+    })
   }
 
   try {
@@ -185,57 +139,28 @@ export async function getAlternativesForTool(toolSlug: string): Promise<(Tool & 
   cons_en: string | null
 })[]> {
   const tool = mockTools.find(t => t.slug === toolSlug)
-  if (!tool) return []
+  if (!tool || !('alternatives' in tool) || !tool.alternatives) return []
 
-  const result: any[] = []
-  const existingSlugs = new Set<string>()
-  existingSlugs.add(toolSlug)
-
-  // Add defined alternatives if they exist
-  if ('alternatives' in tool && Array.isArray(tool.alternatives)) {
-    for (const alt of tool.alternatives) {
+  return tool.alternatives
+    .map(alt => {
       const altTool = mockTools.find(t => t.slug === alt.alternative_slug)
-      if (!altTool) continue
-      existingSlugs.add(alt.alternative_slug)
-      result.push({
+      if (!altTool) return null
+      return {
         ...altTool,
-        rank: alt.rank || result.length + 1,
+        rank: alt.rank,
         pros_es: null,
         pros_en: null,
         cons_es: null,
         cons_en: null,
-      })
-    }
-  }
-
-  // Expand: add tools from same category not already listed
-  const categoryTools = mockTools.filter(t =>
-    t.category_id === tool.category_id &&
-    !existingSlugs.has(t.slug) &&
-    t.slug
-  )
-  const extraByRating = categoryTools
-    .sort((a, b) => (b.rating_g2 || 3) - (a.rating_g2 || 3))
-    .slice(0, 14)
-
-  for (const t of extraByRating) {
-    result.push({
-      ...t,
-      rank: result.length + 1,
-      pros_es: null,
-      pros_en: null,
-      cons_es: null,
-      cons_en: null,
+      }
     })
-  }
-
-  return result
+    .filter(Boolean) as any[]
 }
 
 export async function getGeneratedContent(toolId: string): Promise<GeneratedContent | null> {
   return safeQuery(
     () => supabase.from('generated_content').select('*').eq('tool_id', toolId).single(),
-    allMockContent.find(c => c.tool_id === toolId) || null
+    mockContent.find(c => c.tool_id === toolId) || null
   )
 }
 
@@ -246,7 +171,7 @@ export async function getGeneratedContent(toolId: string): Promise<GeneratedCont
 export async function searchTools(query: string, lang: string = 'es'): Promise<Tool[]> {
   const q = query.toLowerCase().trim()
   const source = await getTools()
-  if (!q) return source.slice(0, 14)
+  if (!q) return source.slice(0, 10)
 
   const descField = lang === 'en' ? 'description_en' : 'description_es'
 
@@ -278,15 +203,4 @@ export async function getToolCount(): Promise<number> {
   } catch {
     return mockTools.length
   }
-}
-
-// ============================================================
-// LOGO URL HELPER
-// ============================================================
-
-export function getToolLogoUrl(slug: string, fallbackUrl: string | null): string | null {
-  if (fallbackUrl) return fallbackUrl
-  const domain = logoDomains[slug]
-  if (domain) return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`
-  return null
 }

@@ -1,0 +1,41 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+const posts = Object.values(import.meta.glob('../../blog/*.md', { eager: true }))
+const sortedPosts = posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf())
+
+const title = "alt/ Blog - SaaS Guides, Comparisons & Resources"
+const description = "Learn how to choose and use the best software for your business. In-depth analysis, guides and tips."
+---
+
+<BaseLayout title={title} description={description} lang="en" canonical="/en/blog">
+  <div class="max-w-6xl mx-auto px-4 py-12">
+    <header class="mb-12 text-center">
+      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-ink)] mb-4">
+        <span class="text-[var(--color-green)]">alt/</span> Blog
+      </h1>
+      <p class="text-lg text-[var(--color-ink-light)] max-w-2xl mx-auto">
+        Everything you need to know to choose the right software, automate processes and save money.
+      </p>
+    </header>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {sortedPosts.map(post => (
+        <a href={post.url} class="flex flex-col bg-white border border-[var(--color-border)] rounded-2xl p-6 hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline group">
+          <div class="text-xs text-[var(--color-ink-light)] mb-2">
+            {new Date(post.frontmatter.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+          </div>
+          <h2 class="text-xl font-bold text-[var(--color-ink)] group-hover:text-[var(--color-green)] mb-3 leading-tight">
+            {post.frontmatter.title}
+          </h2>
+          <p class="text-sm text-[var(--color-ink-light)] flex-1">
+            {post.frontmatter.description}
+          </p>
+          <div class="mt-4 text-sm font-medium text-[var(--color-green)]">
+            Read more →
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

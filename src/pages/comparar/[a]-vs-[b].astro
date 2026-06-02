@@ -1,7 +1,5 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro'
-import { getHreflang } from '@/lib/hreflang'
-import { getToolContent } from '@/lib/tool-content'
 import { tools as mockTools } from '@/lib/seed-data'
 
 export async function getStaticPaths() {
@@ -20,34 +18,35 @@ const { a, b } = Astro.params
 
 const toolA = mockTools.find(t => t.slug === a)
 const toolB = mockTools.find(t => t.slug === b)
-const contentA = getToolContent(a!)
-const contentB = getToolContent(b!)
 
 const title = `${toolA?.name || a} vs ${toolB?.name || b}: ¿cuál elegir en 2026?`
 const desc = `Comparativa real entre ${toolA?.name || a} y ${toolB?.name || b}: precios, funcionalidades, pros, contras y valoraciones. Descubre cuál es mejor para ti.`
 
+const siteUrl = import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'
+const currentUrl = `${siteUrl}/comparar/${a}-vs-${b}`
+
 const schema = {
   '@context': 'https://schema.org',
-  '@type': 'WebPage',
-  name: title,
-  description: desc,
-  mainEntity: {
-    '@type': 'Product',
-    name: toolA?.name || a,
-  },
+  '@graph': [
+    {
+      '@type': 'WebPage',
+      '@id': currentUrl,
+      name: title,
+      description: desc,
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${currentUrl}#breadcrumb`,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: siteUrl },
+        { '@type': 'ListItem', position: 2, name: `${toolA?.name || a} vs ${toolB?.name || b}`, item: currentUrl }
+      ]
+    }
+  ]
 }
-
-const allFeatures = [
-  ...(contentA.features_es || []),
-  ...(contentB.features_es || []),
-]
-const commonFeatures = allFeatures.filter(f =>
-  (contentA.features_es || []).some(fa => fa.toLowerCase().includes(f.toLowerCase().slice(0, 10))) &&
-  (contentB.features_es || []).some(fb => fb.toLowerCase().includes(f.toLowerCase().slice(0, 10)))
-)
 ---
 
-<BaseLayout title={title} description={desc} lang="es" canonical={`/comparar/${a}-vs-${b}`} schema={schema} hreflang={getHreflang('comparison', `${a}-vs-${b}`)}>
+<BaseLayout title={title} description={desc} lang="es" canonical={`/comparar/${a}-vs-${b}`} schema={schema}>
   <div class="max-w-6xl mx-auto px-4 py-8">
     <nav class="text-sm text-[var(--color-ink-light)] mb-6">
       <a href="/" class="hover:text-[var(--color-ink)] transition-colors no-underline">Inicio</a>
@@ -67,10 +66,10 @@ const commonFeatures = allFeatures.filter(f =>
       No hay una herramienta "mejor" para todos: depende de tu caso de uso concreto.
     </p>
 
-    <!-- Side-by-side cards -->
+    <!-- Side-by-side comparison -->
     <div class="grid md:grid-cols-2 gap-6 mb-10">
       {[toolA, toolB].map(tool => (
-        <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-6">
+        <div class="bg-white border border-[var(--color-border)] rounded-xl p-6">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-12 h-12 rounded-lg bg-[var(--color-green-bg)] flex items-center justify-center shrink-0 overflow-hidden">
               {tool?.logo_url ? (
@@ -86,7 +85,7 @@ const commonFeatures = allFeatures.filter(f =>
             <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
               <dt class="text-[var(--color-ink-light)]">Precio</dt>
               <dd class="font-medium text-[var(--color-ink)]">
-                {tool?.price_model === 'free' ? 'Gratis' : tool?.price_starting ? `Desde ${tool.price_starting}€/mes` : 'Freemium'}
+                {tool?.price_model === 'free' ? 'Gratis' : tool?.price_starting ? `Desde ${tool.price_starting}$/mes` : 'Freemium'}
               </dd>
             </div>
             <div class="flex justify-between py-1.5 border-b border-[var(--color-border-light)]">
@@ -118,123 +117,6 @@ const commonFeatures = allFeatures.filter(f =>
         </div>
       ))}
     </div>
-
-    <!-- Features Comparison Table -->
-    {(contentA.features_es.length > 0 || contentB.features_es.length > 0) && (
-      <section class="mb-10">
-        <h2 class="text-xl font-bold mb-4 text-[var(--color-ink)]">⚡ Comparativa de funcionalidades</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl overflow-hidden">
-            <thead>
-              <tr class="bg-[var(--color-cream)] border-b border-[var(--color-border)]">
-                <th class="text-left p-4 font-semibold text-[var(--color-ink)]">Funcionalidad</th>
-                <th class="text-center p-4 font-semibold text-[var(--color-ink)]">{toolA?.name || a}</th>
-                <th class="text-center p-4 font-semibold text-[var(--color-ink)]">{toolB?.name || b}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allFeatures.slice(0, 15).map(f => (
-                <tr class="border-b border-[var(--color-border-light)] last:border-0">
-                  <td class="p-4 text-[var(--color-ink)]">{f}</td>
-                  <td class="p-4 text-center">
-                    {contentA.features_es.some(fa => fa.toLowerCase().includes(f.toLowerCase().slice(0, 10))) ? <span class="text-[var(--color-green)] font-bold">✓</span> : <span class="text-[var(--color-red)]">✗</span>}
-                  </td>
-                  <td class="p-4 text-center">
-                    {contentB.features_es.some(fb => fb.toLowerCase().includes(f.toLowerCase().slice(0, 10))) ? <span class="text-[var(--color-green)] font-bold">✓</span> : <span class="text-[var(--color-red)]">✗</span>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    )}
-
-    <!-- Pros & Cons Side by Side -->
-    <div class="grid md:grid-cols-2 gap-6 mb-10">
-      <!-- Tool A Pros/Cons -->
-      <div class="space-y-4">
-        <h2 class="text-lg font-bold text-[var(--color-ink)]">
-          ✅ {toolA?.name || a}: fortalezas y debilidades
-        </h2>
-        {contentA.pros_es.length > 0 && (
-          <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-xl p-4">
-            <h3 class="font-semibold text-[var(--color-green)] text-sm mb-2">Ventajas</h3>
-            <ul class="space-y-1">
-              {contentA.pros_es.map(p => <li class="text-sm text-[var(--color-ink)] flex gap-2"><span>+</span> {p}</li>)}
-            </ul>
-          </div>
-        )}
-        {contentA.cons_es.length > 0 && (
-          <div class="bg-red-50 border border-red-200 rounded-xl p-4">
-            <h3 class="font-semibold text-red-600 text-sm mb-2">Desventajas</h3>
-            <ul class="space-y-1">
-              {contentA.cons_es.map(c => <li class="text-sm text-[var(--color-ink)] flex gap-2"><span>-</span> {c}</li>)}
-            </ul>
-          </div>
-        )}
-        {contentA.best_for_es && (
-          <p class="text-sm text-[var(--color-ink-light)]">
-            🎯 <strong>Ideal para:</strong> {contentA.best_for_es}
-          </p>
-        )}
-      </div>
-
-      <!-- Tool B Pros/Cons -->
-      <div class="space-y-4">
-        <h2 class="text-lg font-bold text-[var(--color-ink)]">
-          ✅ {toolB?.name || b}: fortalezas y debilidades
-        </h2>
-        {contentB.pros_es.length > 0 && (
-          <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-xl p-4">
-            <h3 class="font-semibold text-[var(--color-green)] text-sm mb-2">Ventajas</h3>
-            <ul class="space-y-1">
-              {contentB.pros_es.map(p => <li class="text-sm text-[var(--color-ink)] flex gap-2"><span>+</span> {p}</li>)}
-            </ul>
-          </div>
-        )}
-        {contentB.cons_es.length > 0 && (
-          <div class="bg-red-50 border border-red-200 rounded-xl p-4">
-            <h3 class="font-semibold text-red-600 text-sm mb-2">Desventajas</h3>
-            <ul class="space-y-1">
-              {contentB.cons_es.map(c => <li class="text-sm text-[var(--color-ink)] flex gap-2"><span>-</span> {c}</li>)}
-            </ul>
-          </div>
-        )}
-        {contentB.best_for_es && (
-          <p class="text-sm text-[var(--color-ink-light)]">
-            🎯 <strong>Ideal para:</strong> {contentB.best_for_es}
-          </p>
-        )}
-      </div>
-    </div>
-
-    <!-- Pricing Comparison -->
-    {(contentA.pricing_tiers.length > 0 || contentB.pricing_tiers.length > 0) && (
-      <section class="mb-10">
-        <h2 class="text-xl font-bold mb-4 text-[var(--color-ink)]">💰 Comparativa de precios</h2>
-        <div class="grid md:grid-cols-2 gap-6">
-          {[
-            { name: toolA?.name || a, tiers: contentA.pricing_tiers },
-            { name: toolB?.name || b, tiers: contentB.pricing_tiers },
-          ].map(col => (
-            <div class="space-y-2">
-              <h3 class="font-semibold text-[var(--color-ink)]">{col.name}</h3>
-              {col.tiers.length > 0 ? col.tiers.map(tier => (
-                <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-3 flex justify-between items-center">
-                  <span class="text-sm font-medium text-[var(--color-ink)]">{tier.name}</span>
-                  <span class="text-sm font-bold text-[var(--color-green)]">
-                    {tier.price_monthly === 0 ? 'Gratis' : `${tier.price_monthly}€/mes`}
-                  </span>
-                </div>
-              )) : (
-                <p class="text-sm text-[var(--color-ink-light)]">Precios no disponibles</p>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-    )}
 
     <!-- Verdict -->
     <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-2xl p-6 text-center">

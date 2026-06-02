@@ -1,4 +1,4 @@
----
+﻿---
 export interface Props {
   title: string
   description: string
@@ -16,15 +16,18 @@ const {
   canonical,
   hreflang = [],
   schema,
-  image = '/og-default.png',
+  image = '/og-image.png',
 } = Astro.props
 
-const siteUrl = import.meta.env.SITE_URL || 'https://alt-source.vercel.app'
+const siteUrl = import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'
 const canonicalUrl = canonical ? new URL(canonical, siteUrl).href : new URL(Astro.url.pathname, siteUrl).href
+const locale = lang === 'en' ? 'en_US' : 'es_ES'
 ---
 
 <title>{title}</title>
 <meta name="description" content={description}>
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="theme-color" content="#f7f5ee" />
 <meta name="google-site-verification" content="lLy6BHjEcETrQOFbWghkdyqEbxUot7EmApnnvPgSjNM" />
 
 <link rel="canonical" href={canonicalUrl}>
@@ -39,12 +42,19 @@ const canonicalUrl = canonical ? new URL(canonical, siteUrl).href : new URL(Astr
 <meta property="og:url" content={canonicalUrl}>
 <meta property="og:type" content="website">
 <meta property="og:image" content={new URL(image, siteUrl).href}>
+<meta property="og:locale" content={locale}>
+<meta property="og:site_name" content="alt/">
 
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@alt_saas">
 <meta name="twitter:title" content={title}>
 <meta name="twitter:description" content={description}>
 <meta name="twitter:image" content={new URL(image, siteUrl).href}>
 
 {schema && (
   <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
+)}
+
+{import.meta.env.PROD && (
+  <script defer data-domain={new URL(siteUrl).hostname} src="https://plausible.io/js/script.js"></script>
 )}

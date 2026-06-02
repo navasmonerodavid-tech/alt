@@ -1,0 +1,35 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+const title = "Política de Privacidad"
+const description = "Política de privacidad de alt/"
+---
+
+<BaseLayout title={title} description={description} lang="es" canonical="/legal/privacidad">
+  <div class="max-w-3xl mx-auto px-4 py-12 prose prose-zinc">
+    <h1 class="text-3xl font-bold mb-4">{title}</h1>
+    <p class="text-[var(--color-ink-light)] mb-8">Última actualización: Junio 2026</p>
+
+    <div class="space-y-6 text-[var(--color-ink)]">
+      <section>
+        <h2 class="text-xl font-semibold mb-2">1. Información que recopilamos</h2>
+        <p>En alt/, respetamos tu privacidad. No utilizamos cookies de rastreo invasivas (tracking cookies de terceros) ni vendemos tus datos a otras empresas.</p>
+      </section>
+      
+      <section>
+        <h2 class="text-xl font-semibold mb-2">2. Uso de la información (Analítica)</h2>
+        <p>Utilizamos herramientas de analítica que respetan la privacidad (como Plausible Analytics). La información recopilada se procesa de forma completamente anónima y no rastrea la actividad entre sitios web ni almacena datos personales identificables. Lo usamos exclusivamente para entender qué comparativas son más útiles y mejorar nuestro contenido.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-2">3. Enlaces de afiliados</h2>
+        <p>Algunos de los enlaces hacia las herramientas SaaS recomendadas son enlaces de afiliados. Esto significa que, si haces clic en ellos y adquieres un servicio, podríamos recibir una comisión. Esto no tiene <strong>ningún coste adicional para ti</strong> y nos ayuda a mantener el proyecto gratuito y sin publicidad intrusiva.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-2">4. Contacto</h2>
+        <p>Si tienes alguna duda acerca de cómo manejamos la privacidad, puedes contactarnos en cualquier momento.</p>
+      </section>
+    </div>
+  </div>
+</BaseLayout>

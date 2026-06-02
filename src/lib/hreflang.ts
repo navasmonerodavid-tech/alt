@@ -3,10 +3,10 @@
  * La ruta usa los mismos slugs en ambos idiomas.
  */
 
-type PageType = 'home' | 'alternatives' | 'category' | 'tool' | 'comparison'
+type PageType = 'home' | 'alternatives' | 'category'
 
 export function getHreflang(type: PageType, slug?: string) {
-  const siteUrl = import.meta.env.SITE_URL || 'https://alt-source.vercel.app'
+  const siteUrl = import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'
 
   switch (type) {
     case 'home':
@@ -28,19 +28,6 @@ export function getHreflang(type: PageType, slug?: string) {
         { lang: 'es', url: `${siteUrl}/herramientas/${slug}` },
         { lang: 'en', url: `${siteUrl}/en/tools/${slug}` },
         { lang: 'x-default', url: `${siteUrl}/herramientas/${slug}` },
-      ]
-    case 'tool':
-      if (!slug) return []
-      return [
-        { lang: 'es', url: `${siteUrl}/herramienta/${slug}` },
-        { lang: 'en', url: `${siteUrl}/en/tool/${slug}` },
-        { lang: 'x-default', url: `${siteUrl}/herramienta/${slug}` },
-      ]
-    case 'comparison':
-      if (!slug) return []
-      return [
-        { lang: 'es', url: `${siteUrl}/comparar/${slug}` },
-        { lang: 'x-default', url: `${siteUrl}/comparar/${slug}` },
       ]
     default:
       return []

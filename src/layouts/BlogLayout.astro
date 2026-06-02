@@ -1,0 +1,22 @@
+---
+import BaseLayout from './BaseLayout.astro'
+
+const { frontmatter } = Astro.props
+---
+
+<BaseLayout title={frontmatter.title} description={frontmatter.description} lang={frontmatter.lang || 'es'} canonical={`/blog/${frontmatter.slug || ''}`}>
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <nav class="text-sm text-[var(--color-ink-light)] mb-8">
+      <a href="/" class="hover:text-[var(--color-ink)] transition-colors no-underline">Inicio</a>
+      <span class="mx-2">/</span>
+      <a href="/blog" class="hover:text-[var(--color-ink)] transition-colors no-underline">Blog</a>
+    </nav>
+    <article class="prose prose-zinc prose-a:text-[var(--color-green)] lg:prose-lg max-w-none text-[var(--color-ink)]">
+      <h1 class="text-4xl font-bold tracking-tight text-[var(--color-ink)] mb-4">{frontmatter.title}</h1>
+      <div class="text-sm text-[var(--color-ink-light)] mb-8">
+        Por <strong>{frontmatter.author || 'Equipo alt/'}</strong> el {new Date(frontmatter.date || new Date()).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </div>
+      <slot />
+    </article>
+  </div>
+</BaseLayout>

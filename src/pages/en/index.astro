@@ -1,7 +1,6 @@
----
+﻿---
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import SearchBar from '@/components/SearchBar'
-import AdSlot from '@/components/AdSlot.astro'
 import { getCategories, getTools, getToolCount } from '@/lib/data'
 import { getHreflang } from '@/lib/hreflang'
 
@@ -11,32 +10,41 @@ const toolCount = await getToolCount()
 
 const featuredTools = tools.filter(t => t.rating_g2 && t.rating_g2 >= 4.5).slice(0, 8)
 
-const toolsForSearch = tools.map(t => {
-  const cat = categories.find(c => c.id === t.category_id)
-  return {
-    slug: t.slug,
-    name: t.name,
-    description_es: t.description_es,
-    description_en: t.description_en,
-    category_slug: cat?.slug,
-    category_name: cat?.name_en,
-  }
-})
+const toolsForSearch = tools.map(t => ({
+  slug: t.slug,
+  name: t.name,
+  description_es: t.description_es,
+  description_en: t.description_en,
+}))
+
+const siteUrl = import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'
 
 const schema = {
   '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'alt/',
-  url: import.meta.env.SITE_URL || 'https://alt-source.vercel.app',
-  description: 'Find the best alternatives to SaaS tools. Real comparisons with pricing, ratings and use cases.',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: `${import.meta.env.SITE_URL || 'https://alt-source.vercel.app'}/en/alternatives-to/{search_term_string}`,
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/en#website`,
+      name: 'alt/',
+      url: `${siteUrl}/en`,
+      description: 'Find the best alternatives to SaaS tools. Real comparisons with pricing, ratings and use cases.',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${siteUrl}/en/alternatives-to/{search_term_string}`,
+        },
+        'query-input': 'required name=search_term_string',
+      },
     },
-    'query-input': 'required name=search_term_string',
-  },
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}/#organization`,
+      name: 'alt/',
+      url: siteUrl,
+      logo: `${siteUrl}/og-image.png`,
+    }
+  ]
 }
 ---
 
@@ -69,7 +77,6 @@ const schema = {
     </p>
   </section>
 
-  <!-- Trending Searches -->
   <section class="max-w-6xl mx-auto px-4 py-12">
     <h2 class="text-xl font-semibold text-center mb-8 text-[var(--color-ink)]">
       🔥 Trending searches
@@ -87,7 +94,7 @@ const schema = {
       ].map(item => (
         <a
           href={`/en/alternatives-to/${item.slug}`}
-          class="block p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all text-center no-underline"
+          class="block p-4 bg-white border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all text-center no-underline"
         >
           <span class="font-medium text-[var(--color-ink)] block">{item.name}</span>
           <span class="text-xs text-[var(--color-ink-light)]">{item.count} alternatives</span>
@@ -96,12 +103,6 @@ const schema = {
     </div>
   </section>
 
-  <!-- Ad -->
-  <div class="max-w-6xl mx-auto px-4">
-    <AdSlot slot="alt-home" format="horizontal" lang="en" />
-  </div>
-
-  <!-- Categories -->
   <section class="max-w-6xl mx-auto px-4 py-12">
     <h2 class="text-xl font-semibold text-center mb-8 text-[var(--color-ink)]">
       📂 Browse by category
@@ -110,7 +111,7 @@ const schema = {
       {categories.map(cat => (
         <a
           href={`/en/tools/${cat.slug}`}
-          class="flex items-center gap-2 p-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline"
+          class="flex items-center gap-2 p-3 bg-white border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline"
         >
           <span class="text-lg">{cat.icon}</span>
           <span class="text-sm font-medium text-[var(--color-ink)]">{cat.name_en}</span>
@@ -119,62 +120,4 @@ const schema = {
     </div>
   </section>
 
-  <!-- Featured Tools -->
-  <section class="max-w-6xl mx-auto px-4 py-12">
-    <h2 class="text-xl font-semibold text-center mb-8 text-[var(--color-ink)]">
-      ⭐ Top rated tools
-    </h2>
-    <div class="grid sm:grid-cols-2 gap-4">
-      {featuredTools.map(tool => (
-        <a
-          href={`/en/alternatives-to/${tool.slug}`}
-          class="flex items-center gap-4 p-5 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline group"
-        >
-          <div class="w-12 h-12 rounded-lg bg-[var(--color-green-bg)] flex items-center justify-center shrink-0 overflow-hidden">
-            {tool.logo_url ? (
-              <img src={tool.logo_url} alt={`${tool.name} logo`} class="w-8 h-8 object-contain" loading="lazy" />
-            ) : (
-              <span class="text-lg font-bold text-[var(--color-green)]">{tool.name[0]}</span>
-            )}
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="font-semibold text-[var(--color-ink)] group-hover:text-[var(--color-green)] transition-colors">
-              {tool.name} alternatives
-            </div>
-            <div class="text-xs text-[var(--color-ink-light)]">
-              {'⭐'.repeat(Math.round(tool.rating_g2 || 4))} {tool.rating_g2} · {tool.price_model === 'free' ? 'Free' : `From €${tool.price_starting}`}
-            </div>
-          </div>
-          <span class="text-[var(--color-green)] text-lg">→</span>
-        </a>
-      ))}
-    </div>
-  </section>
-
-  <!-- Newsletter -->
-  <section class="max-w-6xl mx-auto px-4 py-12">
-    <div class="bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-2xl p-8 text-center">
-      <h2 class="text-xl font-semibold mb-2 text-[var(--color-ink)]">📬 Best alternative every week</h2>
-      <p class="text-sm text-[var(--color-ink-light)] mb-4 max-w-md mx-auto">
-        Get the top 3 SaaS alternatives of the week, with real comparisons. No spam.
-      </p>
-      <form class="flex gap-2 max-w-sm mx-auto" action="/api/subscribe" method="POST">
-        <label for="en-newsletter-email" class="sr-only">Email address</label>
-        <input
-          id="en-newsletter-email"
-          type="email"
-          name="email"
-          placeholder="you@email.com"
-          required
-          class="flex-1 px-4 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-green)]/30"
-        />
-        <button
-          type="submit"
-          class="px-5 py-2.5 rounded-lg bg-[var(--color-green)] text-white text-sm font-medium hover:bg-[var(--color-green-light)] transition-colors"
-        >
-          Subscribe
-        </button>
-      </form>
-    </div>
-  </section>
 </BaseLayout>

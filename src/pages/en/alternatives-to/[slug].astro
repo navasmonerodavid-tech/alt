@@ -2,8 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import ToolCard from '@/components/ToolCard.astro'
 import FAQ from '@/components/FAQ.astro'
-import AdSlot from '@/components/AdSlot.astro'
-import { getToolBySlug, getAlternativesForTool, getGeneratedContent, getCategoryBySlug, getCategories } from '@/lib/data'
+import { getToolBySlug, getAlternativesForTool, getGeneratedContent } from '@/lib/data'
 import { getHreflang } from '@/lib/hreflang'
 import type { Tool } from '@/lib/types'
 import { tools as mockTools } from '@/lib/seed-data'
@@ -21,9 +20,6 @@ if (!tool) return Astro.redirect('/en')
 
 const alternatives = await getAlternativesForTool(slug!)
 const content = await getGeneratedContent(tool.id)
-const cats = await getCategories()
-const categorySlug = cats.find(c => c.id === tool.category_id)?.slug || ''
-const category = await getCategoryBySlug(categorySlug)
 
 const faqs = content?.faq_en && Array.isArray(content.faq_en)
   ? content.faq_en as { question: string; answer: string }[]
@@ -32,49 +28,44 @@ const faqs = content?.faq_en && Array.isArray(content.faq_en)
 const pageTitle = `The ${alternatives.length} best ${tool.name} alternatives in 2026`
 const pageDesc = `Real comparison of ${tool.name} alternatives: pricing, ratings, pros and cons. ${alternatives.map(a => a.name).join(', ')}. Find your ideal tool.`
 
-const siteUrl = import.meta.env.SITE_URL || 'https://alt-source.vercel.app'
+const siteUrl = import.meta.env.SITE_URL || 'https://alt-dusky.vercel.app'
+const currentUrl = `${siteUrl}/en/alternatives-to/${slug}`
 
 const schema = {
   '@context': 'https://schema.org',
   '@graph': [
     {
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: `${siteUrl}/en` },
-        { '@type': 'ListItem', position: 2, name: `${tool.name} alternatives` },
-      ],
-    },
-    {
       '@type': 'SoftwareApplication',
+      '@id': `${siteUrl}/en/tool/${slug}#software`,
       name: tool.name,
-      applicationCategory: category?.name_en || 'BusinessApplication',
+      applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       offers: {
         '@type': 'Offer',
         price: tool.price_starting ? tool.price_starting.toString() : '0',
         priceCurrency: 'EUR',
       },
-      aggregateRating: tool.rating_g2 ? {
-        '@type': 'AggregateRating',
-        ratingValue: tool.rating_g2.toString(),
-        bestRating: '5',
-        ratingCount: '100',
-      } : undefined,
     },
-  ],
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${currentUrl}#breadcrumb`,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+        { '@type': 'ListItem', position: 2, name: `${tool.name} alternatives`, item: currentUrl }
+      ]
+    }
+  ]
 }
 ---
 
 <BaseLayout title={pageTitle} description={pageDesc} lang="en" canonical={`/en/alternatives-to/${slug}`} schema={schema} hreflang={getHreflang('alternatives', slug!)}>
   <div class="max-w-6xl mx-auto px-4 py-8">
-    <!-- Breadcrumb -->
     <nav class="text-sm text-[var(--color-ink-light)] mb-6">
       <a href="/en" class="hover:text-[var(--color-ink)] transition-colors no-underline">Home</a>
       <span class="mx-2">/</span>
       <span class="text-[var(--color-ink)]">{tool.name} alternatives</span>
     </nav>
 
-    <!-- Hero -->
     <header class="mb-10">
       <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-[var(--color-ink)] mb-4">
         The {alternatives.length} best <span class="text-[var(--color-green)]">{tool.name}</span> alternatives
@@ -86,14 +77,10 @@ const schema = {
       )}
     </header>
 
-    <!-- Ad -->
-    <AdSlot slot="alt-top" format="horizontal" lang="en" />
-
-    <!-- Comparison Table -->
     <section class="mb-10">
       <h2 class="text-xl font-semibold mb-4 text-[var(--color-ink)]">Quick comparison</h2>
       <div class="overflow-x-auto">
-        <table class="w-full text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl overflow-hidden">
+        <table class="w-full text-sm bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
           <thead>
             <tr class="bg-[var(--color-cream)] border-b border-[var(--color-border)]">
               <th class="text-left p-4 font-semibold text-[var(--color-ink)]">Tool</th>
@@ -122,7 +109,7 @@ const schema = {
                   </div>
                 </td>
                 <td class="p-4 text-[var(--color-ink-light)] hidden sm:table-cell">
-                  {alt.price_model === 'free' ? 'Free' : alt.price_starting ? `From €${alt.price_starting}/mo` : 'Freemium'}
+                  {alt.price_model === 'free' ? 'Free' : alt.price_starting ? `From $${alt.price_starting}/mo` : 'Freemium'}
                 </td>
                 <td class="p-4 hidden md:table-cell">
                   {alt.rating_g2 && <span class="text-[var(--color-ink-light)]">⭐ {alt.rating_g2}</span>}
@@ -143,7 +130,6 @@ const schema = {
       </div>
     </section>
 
-    <!-- Individual Cards -->
     <section>
       <h2 class="text-xl font-semibold mb-4 text-[var(--color-ink)]">Detailed analysis of each alternative</h2>
       <div class="space-y-4">
@@ -166,43 +152,6 @@ const schema = {
       </div>
     </section>
 
-    <!-- FAQ -->
-    {faqs.length > 0 && <FAQ faqs={faqs} lang="en" />}
-
-    <!-- Ad Bottom -->
-    <AdSlot slot="alt-bottom" format="horizontal" lang="en" />
-
-    <!-- Related Comparisons -->
-    <section class="mt-12">
-      <h2 class="text-xl font-semibold mb-4 text-[var(--color-ink)]">You might also like</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {alternatives.slice(0, 6).map(alt => (
-          <a href={`/en/alternatives-to/${alt.slug}`} class="block p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl hover:border-[var(--color-green)] hover:shadow-sm transition-all no-underline">
-            <span class="text-sm font-medium text-[var(--color-ink)] block">{alt.name} alternatives</span>
-            <span class="text-xs text-[var(--color-ink-light)] mt-1 block">
-              {alt.price_model === 'free' ? 'Free' : alt.price_starting ? `From €${alt.price_starting}/mo` : ''}
-            </span>
-          </a>
-        ))}
-        {category && (
-          <a href={`/en/tools/${category.slug}`} class="block p-4 bg-[var(--color-green-bg)] border border-[var(--color-green)]/20 rounded-xl hover:shadow-sm transition-all no-underline">
-            <span class="text-sm font-medium text-[var(--color-green)] block">All {category.name_en} tools</span>
-            <span class="text-xs text-[var(--color-ink-light)] mt-1 block">Explore full category →</span>
-          </a>
-        )}
-      </div>
-    </section>
-
-    <!-- Related Category -->
-    {category && (
-      <section class="mt-6">
-        <p class="text-sm text-[var(--color-ink-light)]">
-          Looking for more tools like {tool.name}?{' '}
-          <a href={`/en/tools/${category.slug}`} class="text-[var(--color-green)] hover:underline font-medium no-underline">
-            View all {category.name_en} tools →
-          </a>
-        </p>
-      </section>
-    )}
+    {faqs.length > 0 && <FAQ faqs={faqs} title="Frequently Asked Questions" />}
   </div>
 </BaseLayout>

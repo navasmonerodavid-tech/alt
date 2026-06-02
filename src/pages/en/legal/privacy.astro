@@ -1,0 +1,35 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+const title = "Privacy Policy"
+const description = "Privacy Policy for alt/"
+---
+
+<BaseLayout title={title} description={description} lang="en" canonical="/en/legal/privacy">
+  <div class="max-w-3xl mx-auto px-4 py-12 prose prose-zinc">
+    <h1 class="text-3xl font-bold mb-4">{title}</h1>
+    <p class="text-[var(--color-ink-light)] mb-8">Last updated: June 2026</p>
+
+    <div class="space-y-6 text-[var(--color-ink)]">
+      <section>
+        <h2 class="text-xl font-semibold mb-2">1. Information We Collect</h2>
+        <p>At alt/, we respect your privacy. We do not use invasive third-party tracking cookies or sell your data to anyone.</p>
+      </section>
+      
+      <section>
+        <h2 class="text-xl font-semibold mb-2">2. How We Use Information (Analytics)</h2>
+        <p>We use privacy-friendly analytics tools (such as Plausible Analytics) to measure traffic on our website. The information collected is processed completely anonymously, does not track your activity across websites, and does not store personal identifiable data. We use this solely to understand which comparisons are most helpful to our visitors.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-2">3. Affiliate Links</h2>
+        <p>Some of the links to SaaS tools recommended on our site are affiliate links. This means if you click on them and make a purchase, we may receive a commission. This comes at <strong>no additional cost to you</strong> and helps us keep this project free and without intrusive ads.</p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold mb-2">4. Contact Us</h2>
+        <p>If you have any questions about how we handle privacy, feel free to reach out.</p>
+      </section>
+    </div>
+  </div>
+</BaseLayout>

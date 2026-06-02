@@ -1,148 +1,29 @@
 ---
-export interface Props {
-  lang?: string
-  currentPath?: string
-}
-
-const { lang = 'es', currentPath = '' } = Astro.props
+const { lang = 'es' } = Astro.props
 const isEn = lang === 'en'
-
-const getPartnerUrl = (path: string) => {
-  if (path.startsWith('/en/')) {
-    const rest = path.slice(3)
-    if (rest.startsWith('/alternatives-to/')) return `/alternativas-a/${rest.slice('/alternatives-to/'.length)}`
-    if (rest.startsWith('/tool/')) return `/herramienta/${rest.slice('/tool/'.length)}`
-    if (rest.startsWith('/tools/')) return `/herramientas/${rest.slice('/tools/'.length)}`
-    if (rest === '') return '/'
-    return '/'
-  }
-  if (path.startsWith('/alternativas-a/')) return `/en/alternatives-to/${path.slice('/alternativas-a/'.length)}`
-  if (path.startsWith('/herramienta/')) return `/en/tool/${path.slice('/herramienta/'.length)}`
-  if (path.startsWith('/herramientas/')) return `/en/tools/${path.slice('/herramientas/'.length)}`
-  if (path.startsWith('/comparar/')) return `/en${path}`
-  if (path === '/') return '/en'
-  return '/en'
-}
-
-const partnerUrl = getPartnerUrl(currentPath || Astro.url?.pathname || '')
 const homeUrl = isEn ? '/en' : '/'
-const categoriesUrl = isEn ? '/en/tools' : '/herramientas'
 ---
 
-<header class="border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 backdrop-blur-sm sticky top-0 z-50">
+<header class="border-b border-[var(--color-border)] bg-white/80 backdrop-blur-sm sticky top-0 z-50">
   <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-    <a href={homeUrl} class="flex items-center gap-1 no-underline flex-shrink-0" aria-label={isEn ? 'Home' : 'Inicio'}>
+    <a href={homeUrl} class="flex items-center gap-1 no-underline" aria-label={isEn ? 'Home' : 'Inicio'}>
       <span class="text-3xl font-bold tracking-tight text-[var(--color-ink)]">alt</span>
       <span class="text-3xl font-bold text-[var(--color-green)]">/</span>
     </a>
-
-    <!-- Skip to content -->
-    <a href="#main-content" class="sr-only">
-      {isEn ? 'Skip to content' : 'Saltar al contenido'}
-    </a>
-
-    <!-- Mobile menu button -->
-    <button
-      id="mobile-menu-btn"
-      class="md:hidden p-2 rounded-lg text-[var(--color-ink-light)] hover:bg-[var(--color-border)]"
-      aria-label={isEn ? 'Toggle menu' : 'Abrir menú'}
-      aria-expanded="false"
-    >
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
-      </svg>
-    </button>
-
-    <!-- Desktop nav -->
-    <nav id="desktop-nav" class="hidden md:flex items-center gap-5 text-sm font-medium">
-      <a href={categoriesUrl} class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline">
+    <nav class="flex items-center gap-6 text-sm font-medium">
+      <a href={isEn ? '/en/tools' : '/herramientas'} class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline">
         {isEn ? 'Categories' : 'Categorías'}
       </a>
-      <a href="/open-source" class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline">
-        Open Source
-      </a>
-      <a href="/blog" class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline">
+      <a href={isEn ? '/en/blog' : '/blog'} class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline">
         Blog
       </a>
-      <a href={partnerUrl} class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline font-medium">
-        {isEn ? '🇪🇸 ES' : '🇬🇧 EN'}
+      <a href={isEn ? '/en' : '/'} class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline">
+        {isEn ? 'EN' : 'ES'}
       </a>
-      <button
-        id="theme-toggle-desktop"
-        class="p-1.5 rounded-lg text-[var(--color-ink-light)] hover:bg-[var(--color-border)] hover:text-[var(--color-ink)] transition-colors"
-        aria-label={isEn ? 'Toggle dark mode' : 'Cambiar modo oscuro'}
-        title={isEn ? 'Toggle dark mode' : 'Cambiar modo oscuro'}
-      >
-        <svg id="theme-icon-sun-desktop" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="hidden"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <svg id="theme-icon-moon-desktop" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
-    </nav>
-  </div>
-
-  <!-- Mobile drawer -->
-  <div id="mobile-drawer" class="hidden md:hidden border-t border-[var(--color-border)] bg-[var(--color-surface)]">
-    <nav class="flex flex-col p-4 gap-3 text-sm font-medium">
-      <a href={categoriesUrl} class="px-3 py-2 rounded-lg text-[var(--color-ink-light)] hover:bg-[var(--color-border)] no-underline">
-        {isEn ? '📂 Categories' : '📂 Categorías'}
+      <span class="text-[var(--color-border)]">|</span>
+      <a href={isEn ? '/' : '/en'} class="text-[var(--color-ink-light)] hover:text-[var(--color-ink)] transition-colors no-underline text-xs opacity-60">
+        {isEn ? 'ES' : 'EN'}
       </a>
-      <a href="/open-source" class="px-3 py-2 rounded-lg text-[var(--color-ink-light)] hover:bg-[var(--color-border)] no-underline">
-        🛡️ Open Source
-      </a>
-      <a href="/blog" class="px-3 py-2 rounded-lg text-[var(--color-ink-light)] hover:bg-[var(--color-border)] no-underline">
-        📝 Blog
-      </a>
-      <a href={partnerUrl} class="px-3 py-2 rounded-lg text-[var(--color-ink-light)] hover:bg-[var(--color-border)] no-underline">
-        {isEn ? '🇪🇸 Ver en español' : '🇬🇧 View in English'}
-      </a>
-      <button
-        id="theme-toggle-mobile"
-        class="px-3 py-2 rounded-lg text-[var(--color-ink-light)] hover:bg-[var(--color-border)] text-left flex items-center gap-2"
-      >
-        <span id="theme-icon-mobile">🌙</span>
-        <span id="theme-label-mobile">{isEn ? 'Dark mode' : 'Modo oscuro'}</span>
-      </button>
     </nav>
   </div>
 </header>
-
-<script>
-  function setTheme(isDark: boolean) {
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '')
-    localStorage.setItem('alt-theme', isDark ? 'dark' : 'light')
-    updateIcons(isDark)
-  }
-
-  function updateIcons(isDark: boolean) {
-    const suns = document.querySelectorAll('[id^="theme-icon-sun"]')
-    const moons = document.querySelectorAll('[id^="theme-icon-moon"]')
-    const mobileIcon = document.getElementById('theme-icon-mobile')
-    const mobileLabel = document.getElementById('theme-label-mobile')
-
-    suns.forEach(s => (s as HTMLElement).classList.toggle('hidden', isDark))
-    moons.forEach(m => (m as HTMLElement).classList.toggle('hidden', !isDark))
-
-    if (mobileIcon) mobileIcon.textContent = isDark ? '☀️' : '🌙'
-    if (mobileLabel) mobileLabel.textContent = isDark ? 'Light mode' : 'Dark mode'
-  }
-
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
-  updateIcons(isDark)
-
-  document.getElementById('theme-toggle-desktop')?.addEventListener('click', () => {
-    const dark = document.documentElement.getAttribute('data-theme') !== 'dark'
-    setTheme(dark)
-  })
-
-  document.getElementById('theme-toggle-mobile')?.addEventListener('click', () => {
-    const dark = document.documentElement.getAttribute('data-theme') !== 'dark'
-    setTheme(dark)
-  })
-
-  // Mobile menu toggle
-  const btn = document.getElementById('mobile-menu-btn')
-  const drawer = document.getElementById('mobile-drawer')
-  btn?.addEventListener('click', () => {
-    const open = drawer!.classList.toggle('hidden')
-    btn.setAttribute('aria-expanded', String(!open))
-  })
-</script>

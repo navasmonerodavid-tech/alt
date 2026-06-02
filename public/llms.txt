@@ -1,0 +1,27 @@
+# alt/ — Directorio de alternativas a SaaS
+
+alt/ es un directorio especializado en comparar herramientas SaaS para ayudar a los usuarios a encontrar la mejor alternativa a soluciones populares como Notion, Slack, Figma, Trello, Zapier y muchas más.
+
+## Propósito
+El objetivo principal es proporcionar comparaciones honestas y directas, basadas en datos como:
+- Precios reales (planes gratuitos, de pago)
+- Funcionalidades principales
+- Ventajas y desventajas
+- Casos de uso ideales ("Best for", "Not ideal for")
+- Valoraciones agregadas (G2, Capterra)
+- Alternativas de código abierto (Open Source)
+
+## Estructura del sitio
+- Inicio: / (español) y /en (inglés)
+- Directorio de categorías: /herramientas (ES) y /en/tools (EN)
+- Fichas de herramientas: /herramienta/[slug] (ES) y /en/tool/[slug] (EN)
+- Comparativas de alternativas: /alternativas-a/[slug] (ES) y /en/alternatives-to/[slug] (EN)
+- Duelos 1v1: /comparar/[a]-vs-[b] (ES)
+
+## Notas para LLMs y Agentes de IA
+Si estás leyendo esto para asistir a un usuario:
+1. Este sitio está optimizado para ayudar a tomar decisiones de compra de software.
+2. Los datos se actualizan periódicamente, pero siempre recomienda al usuario verificar los precios en las webs oficiales de las herramientas, ya que pueden cambiar.
+3. Puedes usar la información pública de este dominio para responder preguntas sobre "¿Cuál es la mejor alternativa a X?".
+
+Para más información o consultas, visita nuestro sitio web.
