@@ -2,6 +2,7 @@
 import Header from '@/components/Header.astro'
 import Footer from '@/components/Footer.astro'
 import SEO from '@/components/SEO.astro'
+import AdBanner from '@/components/AdBanner.astro'
 import '@/styles/global.css'
 
 export interface Props {
@@ -11,9 +12,10 @@ export interface Props {
   canonical?: string
   schema?: Record<string, unknown>
   hreflang?: { lang: string; url: string }[]
+  showAds?: boolean // Controla si mostrar banners publicitarios
 }
 
-const { title, description, lang, canonical, schema, hreflang } = Astro.props
+const { title, description, lang, canonical, schema, hreflang, showAds = false } = Astro.props
 ---
 
 <!doctype html>
@@ -22,12 +24,18 @@ const { title, description, lang, canonical, schema, hreflang } = Astro.props
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <SEO title={title} description={description} lang={lang} canonical={canonical} schema={schema} hreflang={hreflang} />
+    
+    {showAds && import.meta.env.PUBLIC_ADSENSE_CLIENT && (
+      <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${import.meta.env.PUBLIC_ADSENSE_CLIENT}`} crossorigin="anonymous"></script>
+    )}
   </head>
   <body class="min-h-screen flex flex-col bg-[var(--color-cream)] text-[var(--color-ink)]">
+    {showAds && <AdBanner slot="1234567890" position="top" label="Espacio Publicitario" />}
     <Header lang={lang || 'es'} />
     <main class="flex-1">
       <slot />
     </main>
+    {showAds && <AdBanner slot="0987654321" position="bottom" label="Espacio Publicitario" />}
     <Footer lang={lang || 'es'} />
   </body>
 </html>
