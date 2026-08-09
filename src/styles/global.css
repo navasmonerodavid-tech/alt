@@ -20,3 +20,82 @@ body {
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
 }
+
+/* ============================================================
+   SISTEMA DE PUBLICIDAD - Estilos para anuncios
+   ============================================================ */
+
+/* Contenedor de anuncios */
+.ad-container {
+  @apply w-full flex justify-center;
+}
+
+/* Placeholder visual para desarrollo */
+.ad-placeholder {
+  @apply transition-all duration-200;
+  background: linear-gradient(135deg, rgba(231, 229, 221, 0.3) 0%, rgba(247, 245, 238, 0.5) 100%);
+}
+
+.ad-placeholder:hover {
+  @apply border-[var(--color-green)]/30;
+}
+
+/* Banner sticky */
+.ad-banner {
+  @apply transition-opacity duration-300;
+  backdrop-filter: blur(8px);
+  background: rgba(247, 245, 238, 0.95);
+}
+
+/* Animación de carga para anuncios */
+.ad-loading {
+  @apply animate-pulse;
+  background: linear-gradient(90deg, #f0ebe0 0%, #f7f5ee 50%, #f0ebe0 100%);
+  background-size: 200% 100%;
+  animation: adLoading 1.5s infinite;
+}
+
+@keyframes adLoading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Responsive - Ajustes para móviles */
+@media (max-width: 640px) {
+  .ad-placeholder {
+    @apply px-2 py-3;
+  }
+  
+  .ad-placeholder span {
+    @apply text-xs;
+  }
+  
+  /* Ocultar banners en móvil si es necesario */
+  /* .ad-banner { display: none; } */
+}
+
+/* Alta densidad (Retina displays) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .ad-placeholder {
+    @apply border-opacity-60;
+  }
+}
+
+/* Modo oscuro (futuro) */
+@media (prefers-color-scheme: dark) {
+  .ad-placeholder {
+    background: linear-gradient(135deg, rgba(45, 45, 45, 0.3) 0%, rgba(30, 30, 30, 0.5) 100%);
+  }
+}
+
+/* Accesibilidad - Reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .ad-loading {
+    animation: none;
+    @apply bg-[var(--color-border-light)];
+  }
+  
+  .ad-banner {
+    @apply static;
+  }
+}

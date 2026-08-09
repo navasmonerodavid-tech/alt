@@ -1,22 +1,59 @@
 ﻿---
-// AdSlot — Google AdSense placeholder
-// Hasta que AdSense apruebe, muestra placeholder visual.
-// Una vez aprobado, reemplazar data-ad-client con tu ID real.
+// AdSlot — Google AdSense / Espacio publicitario
+// 
+// CONFIGURACIÓN:
+// - Para activar los anuncios, añade esto a tu .env.local:
+//   PUBLIC_ADS_ENABLED=true
+//   PUBLIC_ADSENSE_CLIENT="ca-pub-XXXXXXXXXXXXXXXX"
+// - Hasta que AdSense apruebe, muestra placeholder visual (si PUBLIC_ADS_ENABLED=true)
+// - Si PUBLIC_ADS_ENABLED=false o no está definido, no renderiza nada (oculto)
 
 export interface Props {
   slot: string // ej: '1234567890'
-  format?: 'auto' | 'horizontal' | 'rectangle' | 'vertical'
+  format?: 'auto' | 'horizontal' | 'rectangle' | 'vertical' | 'banner'
   class?: string
+  label?: string // Texto personalizado para el placeholder
 }
 
-const { slot, format = 'auto', class: className = '' } = Astro.props
+const { slot, format = 'auto', class: className = '', label = 'Publicidad' } = Astro.props
+
+// Verificar si los anuncios están activados mediante variable de entorno
+const adsEnabled = import.meta.env.PUBLIC_ADS_ENABLED === 'true'
+const adsenseClient = import.meta.env.PUBLIC_ADSENSE_CLIENT || ''
+
+// Mapeo de formatos a dimensiones
+const formatDimensions = {
+  auto: 'h-[90px]',
+  horizontal: 'h-[90px]',
+  rectangle: 'h-[250px]',
+  vertical: 'h-[600px]',
+  banner: 'h-[100px]',
+}
 ---
 
-<div class={`ad-container my-6 flex justify-center ${className}`}>
-  <div class="ad-placeholder border-2 border-dashed border-[var(--color-border)] rounded-xl p-4 text-center max-w-[728px] w-full bg-[var(--color-cream)]/50">
-    <p class="text-xs text-[var(--color-ink-light)] mb-1">Publicidad</p>
-    <div class="h-[90px] flex items-center justify-center text-[var(--color-border)]">
-      <span class="text-sm">Ad — {format}</span>
-    </div>
+{adsEnabled ? (
+  <div class={`ad-container my-6 flex justify-center ${className}`}>
+    {adsenseClient ? (
+      // Modo producción: Google AdSense real
+      <ins
+        class="adsbygoogle"
+        style={{ display: 'block', width: '100%', maxWidth: format === 'vertical' ? '160px' : format === 'rectangle' ? '300px' : '728px' }}
+        data-ad-client={adsenseClient}
+        data-ad-slot={slot}
+        data-ad-format={format}
+        data-full-width-responsive="true"
+      />
+    ) : (
+      // Modo desarrollo: Placeholder visual
+      <div class={`ad-placeholder border-2 border-dashed border-[var(--color-border)] rounded-xl p-4 text-center max-w-[728px] w-full bg-[var(--color-cream)]/50 ${formatDimensions[format]}`}>
+        <p class="text-xs text-[var(--color-ink-light)] mb-1">{label}</p>
+        <div class="h-full flex items-center justify-center text-[var(--color-border)]">
+          <span class="text-sm">Ad — {format} (Slot: {slot})</span>
+        </div>
+      </div>
+    )}
   </div>
-</div>
+) : (
+  // Oculto: no renderiza nada en producción cuando adsEnabled=false
+  <div class="hidden" data-ad-slot={slot} data-ad-format={format}></div>
+)}

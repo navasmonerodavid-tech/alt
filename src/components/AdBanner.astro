@@ -1,0 +1,57 @@
+---
+// AdBanner — Banner publicitario horizontal (top/bottom)
+// 
+// CONFIGURACIÓN:
+// - Para activar los anuncios, añade esto a tu .env.local:
+//   PUBLIC_ADS_ENABLED=true
+//   PUBLIC_ADSENSE_CLIENT="ca-pub-XXXXXXXXXXXXXXXX"
+// - Hasta que AdSense apruebe, muestra placeholder visual (si PUBLIC_ADS_ENABLED=true)
+// - Si PUBLIC_ADS_ENABLED=false o no está definido, no renderiza nada (oculto)
+
+export interface Props {
+  slot: string // ej: '1234567890'
+  position?: 'top' | 'bottom' | 'sidebar'
+  class?: string
+  label?: string // Texto personalizado para el placeholder
+}
+
+const { slot, position = 'top', class: className = '', label = 'Publicidad' } = Astro.props
+
+// Verificar si los anuncios están activados mediante variable de entorno
+const adsEnabled = import.meta.env.PUBLIC_ADS_ENABLED === 'true'
+const adsenseClient = import.meta.env.PUBLIC_ADSENSE_CLIENT || ''
+
+// Estilos según posición
+const positionStyles = {
+  top: 'sticky top-0 z-50 border-b',
+  bottom: 'sticky bottom-0 z-50 border-t',
+  sidebar: 'sticky top-20',
+}
+---
+
+{adsEnabled ? (
+  <div class={`ad-banner w-full flex justify-center ${positionStyles[position]} ${className}`}>
+    {adsenseClient ? (
+      // Modo producción: Google AdSense real
+      <ins
+        class="adsbygoogle"
+        style={{ display: 'block', width: '100%', height: '100px' }}
+        data-ad-client={adsenseClient}
+        data-ad-slot={slot}
+        data-ad-format="horizontal"
+        data-full-width-responsive="true"
+      />
+    ) : (
+      // Modo desarrollo: Placeholder visual
+      <div class="ad-placeholder w-full h-[100px] border-2 border-dashed border-[var(--color-border)] rounded-none p-4 text-center bg-[var(--color-cream)]/50 flex items-center justify-center">
+        <div class="text-center">
+          <p class="text-xs text-[var(--color-ink-light)] mb-1">{label}</p>
+          <span class="text-sm text-[var(--color-border)]">Banner {position} — Slot: {slot}</span>
+        </div>
+      </div>
+    )}
+  </div>
+) : (
+  // Oculto: no renderiza nada en producción cuando adsEnabled=false
+  <div class="hidden" data-ad-slot={slot} data-ad-position={position}></div>
+)}
